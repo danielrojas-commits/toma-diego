@@ -1,0 +1,54 @@
+<div class="container mt-4 p-4 bg-light border rounded shadow-sm">
+    
+  <button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
+      <i class="bi bi-arrow-left me-1"></i>
+      Regresar
+    </button>
+    
+  <h2 class="text-center mb-3">🚲 Listado de Bicicletas Registradas</h2>
+
+  <div *ngIf="cargando" class="text-center text-secondary my-3">
+    <div class="spinner-border" role="status"></div>
+    <p>Cargando bicicletas...</p>
+  </div>
+
+  <div *ngIf="mensaje && !cargando" class="alert text-center fw-bold"
+       [ngClass]="{'text-success': mensaje.includes('✅'), 'text-danger': mensaje.includes('❌'), 'text-warning': mensaje.includes('⚠️')}">
+    {{ mensaje }}
+  </div>
+
+  <table *ngIf="bicicletas.length > 0" class="table table-striped table-hover align-middle text-center">
+    <thead class="table-primary">
+      <tr>
+        <th>#</th>
+        <th>Identificador</th>
+        <th>Marca</th>
+        <th>Modelo</th>
+        <th>Color</th>
+        <th>Estacionamiento</th>
+        <th>Fecha Registro</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let bici of bicicletas; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ bici.identificador || bici.establecimiento || '-' }}</td>
+        <td>{{ bici.marca }}</td>
+        <td>{{ bici.modelo || '-' }}</td>
+        <td>{{ bici.color }}</td>
+        <td>{{ bici.estacionamiento }}</td>
+        <td>{{ bici.fechaRegistro | date:'short' }}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" (click)="eliminar(bici._id)">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="text-center mt-3">
+    <button (click)="goBack()" class="btn btn-secondary">Regresar</button>
+  </div>
+</div>

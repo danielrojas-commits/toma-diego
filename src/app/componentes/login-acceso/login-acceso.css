@@ -1,0 +1,10 @@
+/* Estilos mínimos para login-acceso (coinciden con otras cards del proyecto) */
+.card.rounded-4 {
+	border-radius: 1rem;
+}
+
+@media (max-width: 576px) {
+	.card.shadow-lg {
+		padding: 1rem;
+	}
+}

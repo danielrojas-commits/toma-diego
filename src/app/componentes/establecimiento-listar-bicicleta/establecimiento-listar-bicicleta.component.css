@@ -1,0 +1,140 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+/* Alineamos la estética con tarjetas limpias y límite visual */
+.container {
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-radius: 8px;
+}
+
+h1 {
+  color: #333;
+  text-align: center;
+}
+
+section {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+h2 {
+  color: #555;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+}
+
+.btn-bicicletas, .btn-cargar {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px 0;
+}
+
+.btn-bicicletas:hover, .btn-cargar:hover {
+  background-color: #0056b3;
+}
+
+.date-input {
+  margin: 15px 0;
+}
+
+.date-input label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.date-input input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #007bff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+/* Contenedor con límite de altura para la lista de bicicletas */
+.bicicletas-list .table-wrapper{
+  max-height: 420px; /* ajustar según diseño */
+  overflow: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 6px;
+  background: #fff;
+}
+
+/* Mantener encabezado visible */
+table thead th{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* Truncamiento para celdas largas y responsividad */
+table td, table th{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+/* En pantallas pequeñas permitir scroll horizontal pero mantener límites */
+@media (max-width: 768px) {
+  .container { padding: 12px; }
+  .bicicletas-list .table-wrapper { max-height: 320px; }
+  table td, table th { max-width: 140px; font-size: 13px; }
+}
+
+table thead {
+  background-color: #007bff;
+  color: white;
+}
+
+table th, table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table tbody tr:hover {
+  background-color: #f0f0f0;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}

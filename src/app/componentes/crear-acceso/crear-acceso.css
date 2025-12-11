@@ -1,0 +1,16 @@
+/* Estilos ligeros para el componente crear-acceso */
+.card.rounded-4 {
+	border-radius: 1rem;
+}
+
+.crear-acceso .mensaje {
+	margin-top: 1rem;
+	text-align: center;
+}
+
+/* Ajustes responsivos si hacen falta */
+@media (max-width: 576px) {
+	.card.shadow-lg {
+		padding: 1rem;
+	}
+}

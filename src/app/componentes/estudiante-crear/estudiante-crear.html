@@ -1,0 +1,62 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg p-4 rounded-4">
+        <button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
+          <i class="bi bi-arrow-left me-1"></i>
+          Regresar
+        </button>
+        <h2 class="text-center mb-4 text-primary fw-bold">Registro de Estudiante</h2>
+
+        <form [formGroup]="estudianteForm" (ngSubmit)="crearEstudiante()">
+          <!-- Nombre -->
+          <div class="mb-3">
+            <label class="form-label">Nombre:</label>
+            <input type="text" formControlName="nombre" class="form-control" placeholder="Ingrese nombre">
+            <div class="text-danger small mt-1"
+                 *ngIf="estudianteForm.get('nombre')?.invalid && estudianteForm.get('nombre')?.touched">
+              Campo obligatorio
+            </div>
+          </div>
+
+          <!-- Apellido -->
+          <div class="mb-3">
+            <label class="form-label">Apellido:</label>
+            <input type="text" formControlName="apellido" class="form-control" placeholder="Ingrese apellido">
+            <div class="text-danger small mt-1"
+                 *ngIf="estudianteForm.get('apellido')?.invalid && estudianteForm.get('apellido')?.touched">
+              Campo obligatorio
+            </div>
+          </div>
+
+          <!-- RUT -->
+          <div class="mb-3">
+            <label class="form-label">RUT:</label>
+            <input type="text" formControlName="rut" class="form-control" placeholder="Ingrese RUT" (input)="sanitizeRutInput()" (blur)="formatRutIfNeeded()" maxlength="10">
+            <div class="form-text small text-muted">Si ingresas sólo números, el campo se autocompletará (ej. 212342344 → 21.234.234-4)</div>
+          </div>
+
+          <!-- Correo -->
+          <div class="mb-3">
+            <label class="form-label">Correo:</label>
+            <input type="email" formControlName="correo" class="form-control" placeholder="correo@ejemplo.cl">
+            <div class="text-danger small mt-1"
+                 *ngIf="estudianteForm.get('correo')?.invalid && estudianteForm.get('correo')?.touched">
+              Correo inválido o vacío
+            </div>
+          </div>
+
+          <!-- Botón -->
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary" [disabled]="estudianteForm.invalid">
+              Registrar
+            </button>
+          </div>
+        </form>
+
+        <!-- Mensaje -->
+        <p class="text-center mt-3 text-success fw-semibold">{{ mensaje }}</p>
+      </div>
+    </div>
+  </div>
+</div>

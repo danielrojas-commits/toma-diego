@@ -1,0 +1,135 @@
+<div class="container p-4">
+  <button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
+    <i class="bi bi-arrow-left me-1"></i> Regresar
+  </button>
+
+  <h2 class="text-center mb-3">🚲 Registro de Bicicletas</h2>
+  <p *ngIf="mensaje" class="text-center fw-bold"
+     [ngClass]="{
+       'text-success': mensaje.type === 'success',
+       'text-danger': mensaje.type === 'error',
+       'text-warning': mensaje.type === 'warning'
+     }">
+    {{ mensaje.text }}
+  </p>
+
+  
+  <div *ngIf="pasoActual === 'buscar'">
+    <form [formGroup]="rutForm" (ngSubmit)="buscarEstudiante()" class="card p-3 shadow-sm">
+      <label class="fw-bold mb-1">Ingrese RUT del estudiante:</label>
+      <input type="text" formControlName="rut" placeholder="12345678-9" class="form-control mb-3" />
+      <button type="submit" class="btn btn-primary w-100">Buscar estudiante</button>
+    </form>
+  </div>
+
+  <!-- Paso 2: Registrar estudiante si no existe -->
+  <div *ngIf="pasoActual === 'registrarEstudiante'" class="mt-3">
+    <h4>🧍 Registrar nuevo estudiante</h4>
+    <form [formGroup]="estudianteForm" (ngSubmit)="registrarEstudiante()" class="card p-3 shadow-sm">
+      <input class="form-control mb-2" placeholder="Nombre" formControlName="nombre" />
+      <input class="form-control mb-2" placeholder="Apellido" formControlName="apellido" />
+      <input class="form-control mb-2" placeholder="RUT" formControlName="rut" />
+      <input class="form-control mb-2" placeholder="Correo" formControlName="correo" />
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success flex-fill">Registrar estudiante</button>
+        <button type="button" class="btn btn-secondary flex-fill" (click)="reiniciarFlujo()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Paso 3: Opciones si el estudiante ya tiene bicicletas -->
+  <div *ngIf="pasoActual === 'opciones'" class="mt-3">
+    <h4>⚙️ Opciones de registro</h4>
+    <p>El estudiante ya tiene las siguientes bicicletas registradas:</p>
+
+    <ul class="list-group mb-3 shadow-sm">
+      <li *ngFor="let bici of bicicletasDelEstudiante"
+          class="list-group-item list-group-item-action d-flex justify-content-between align-items-center bici-item"
+          [class.selected]="bicicletaSeleccionada && bicicletaSeleccionada._id === bici._id"
+          (click)="seleccionarBicicleta(bici)">
+        <div>
+          <strong>{{ bici.marca }}</strong> - {{ bici.color }}
+          <span class="text-muted">({{ bici.estacionamiento }})</span>
+        </div>
+        <i class="bi bi-pencil-square text-primary"></i>
+      </li>
+    </ul>
+
+    <div class="d-grid gap-2">
+      <button class="btn btn-outline-primary" (click)="registrarNuevaBicicleta()">
+        ➕ Registrar nueva bicicleta
+      </button>
+      <button class="btn btn-secondary" (click)="reiniciarFlujo()">🔙 Volver a buscar otro estudiante</button>
+    </div>
+  </div>
+
+  <!-- Paso 4: Registrar bicicleta (nueva o cambiar estacionamiento) -->
+  <div *ngIf="pasoActual === 'registrarBicicleta'" class="mt-3">
+    <h4 *ngIf="!bicicletaSeleccionada">🚲 Registrar nueva bicicleta</h4>
+    <h4 *ngIf="bicicletaSeleccionada">🔄 Cambiar estacionamiento</h4>
+
+    <form [formGroup]="bicicletaForm" (ngSubmit)="registrarBicicleta()" class="card p-3 shadow-sm">
+      <input class="form-control mb-2" placeholder="Marca" formControlName="marca" [readonly]="!!bicicletaSeleccionada" />
+      <input class="form-control mb-2" placeholder="Modelo" formControlName="modelo" [readonly]="!!bicicletaSeleccionada" />
+      <input class="form-control mb-2" placeholder="Color" formControlName="color" [readonly]="!!bicicletaSeleccionada" />
+      <input class="form-control mb-3" placeholder="Estacionamiento" formControlName="estacionamiento" />
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success flex-fill">
+          {{ bicicletaSeleccionada ? 'Actualizar estacionamiento' : 'Registrar Bici' }}
+        </button>
+        <button type="button" class="btn btn-secondary flex-fill" (click)="reiniciarFlujo()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Paso 5: Pantalla de Éxito -->
+<div *ngIf="pasoActual === 'exito'" class="container p-4 text-center">
+  <div class="card p-4 shadow-sm border-success">
+    <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+    <h4 class="mt-3">¡Operación Exitosa!</h4>
+    <p>{{ mensaje?.text }}</p>
+
+    <div *ngIf="bicicletaDeExito" class="card-body text-start bg-light rounded mb-3">
+      <h5 class="card-title">Detalles de la Bicicleta</h5>
+      <ul class="list-unstyled">
+        <li><strong>Marca:</strong> {{ bicicletaDeExito.marca }}</li>
+        <li><strong>Modelo:</strong> {{ bicicletaDeExito.modelo || 'N/A' }}</li>
+        <li><strong>Color:</strong> {{ bicicletaDeExito.color }}</li>
+        <li><strong>Estacionamiento:</strong> {{ bicicletaDeExito.estacionamiento }}</li>
+      </ul>
+    </div>
+
+    <button class="btn btn-primary w-100" (click)="reiniciarFlujo()">
+      Registrar otra bicicleta
+    </button>
+  </div>
+</div>
+<!-- Generador de QR -->
+<div class="container p-4 mt-4">
+  <h4 class="mb-3">🔖 Generador de QR (redirige a Registro por Estudiante)</h4>
+  <p class="text-muted">Selecciona un estacionamiento (A1..A9) y genera un QR que apunta al formulario de registro por estudiante.</p>
+
+  <div class="d-flex gap-2 align-items-center">
+    <label class="me-2 mb-0">Estacionamiento:</label>
+    <select class="form-select w-auto" [(ngModel)]="qrSelection" name="qrSelection">
+      <option *ngFor="let n of qrNumbers" [value]="'A' + n">{{ 'A' + n }}</option>
+    </select>
+
+    <label class="me-2 mb-0">Identificador:</label>
+    <select class="form-select w-auto" [(ngModel)]="qrIdentificador" name="qrIdentificador">
+      <option *ngFor="let id of qrIdentificadores" [value]="id">{{ id }}</option>
+    </select>
+
+    <button class="btn btn-primary ms-2" (click)="generarQR()">Generar QR</button>
+    <button *ngIf="qrImageUrl" class="btn btn-outline-secondary ms-2" (click)="copiarUrl()">Copiar URL</button>
+  </div>
+
+  <div class="mt-3">
+    <div *ngIf="qrImageUrl">
+      <img [src]="qrImageUrl" alt="QR" />
+      <p class="small mt-2 text-break">URL: <a [href]="targetUrl" target="_blank">{{ targetUrl }}</a></p>
+    </div>
+  </div>
+</div>

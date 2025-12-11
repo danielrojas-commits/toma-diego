@@ -1,0 +1,11 @@
+/* Estilos para listar-acceso */
+.table-responsive pre {
+	margin: 0;
+	font-family: monospace;
+}
+
+@media (max-width: 576px) {
+	.table-responsive pre {
+		font-size: 12px;
+	}
+}

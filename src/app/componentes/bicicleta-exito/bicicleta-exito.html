@@ -1,0 +1,16 @@
+<div class="container p-4">
+  <h2 class="mb-3">✅ Operación exitosa</h2>
+  <p *ngIf="params.action">Acción: <strong>{{ params.action }}</strong></p>
+  <div class="card p-3">
+    <p><strong>ID:</strong> {{ params.id }}</p>
+    <p><strong>RUT:</strong> {{ params.rut }}</p>
+    <p><strong>Marca:</strong> {{ params.marca }}</p>
+    <p><strong>Modelo:</strong> {{ params.modelo }}</p>
+    <p><strong>Color:</strong> {{ params.color }}</p>
+    <p><strong>Estacionamiento:</strong> {{ params.estacionamiento }}</p>
+    <p *ngIf="params.identificador || identificadorNombre"><strong>Identificador:</strong> {{ identificadorNombre ?? params.identificador }}</p>
+  </div>
+  <div class="mt-3">
+    <button (click)="goBack()" class="btn btn-primary">Regresar</button>
+  </div>
+</div>

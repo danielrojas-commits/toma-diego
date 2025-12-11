@@ -1,0 +1,75 @@
+<div class="container mt-5">
+	<button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
+		<i class="bi bi-arrow-left me-1"></i> Regresar
+	</button>
+
+	<div class="row justify-content-center">
+		<div class="col-md-6">
+			<div class="card shadow-lg p-4 rounded-4">
+				<h2 class="text-center mb-3 text-info fw-bold">Crear Acceso</h2>
+
+				<p class="text-center fw-bold"
+					 [ngClass]="{
+						 'text-success': mensaje.startsWith('✅'),
+						 'text-danger': mensaje.startsWith('❌'),
+						 'text-warning': mensaje.startsWith('⚠️')
+					 }">
+					{{ mensaje }}
+				</p>
+
+				<form [formGroup]="accesoForm" (ngSubmit)="enviar()">
+					<div class="mb-3">
+						<label class="form-label">Nombre</label>
+						<input type="text" formControlName="nombre" class="form-control" placeholder="Ingrese nombre">
+						<div class="text-danger small mt-1"
+								 *ngIf="accesoForm.get('nombre')?.invalid && accesoForm.get('nombre')?.touched">
+							Campo obligatorio
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Apellido</label>
+						<input type="text" formControlName="apellido" class="form-control" placeholder="Ingrese apellido">
+						<div class="text-danger small mt-1"
+								 *ngIf="accesoForm.get('apellido')?.invalid && accesoForm.get('apellido')?.touched">
+							Campo obligatorio
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Correo</label>
+						<input type="email" formControlName="correo" class="form-control" placeholder="correo@ejemplo.cl">
+						<div class="text-danger small mt-1"
+								 *ngIf="accesoForm.get('correo')?.invalid && accesoForm.get('correo')?.touched">
+							Correo inválido o vacío
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">RUT</label>
+						<input type="text" formControlName="rut" class="form-control" placeholder="12345678-9">
+						<div class="text-danger small mt-1"
+								 *ngIf="accesoForm.get('rut')?.invalid && accesoForm.get('rut')?.touched">
+							Campo obligatorio
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Contraseña</label>
+						<input type="password" formControlName="contraseña" class="form-control" placeholder="Mínimo 6 caracteres">
+						<div class="text-danger small mt-1"
+								 *ngIf="accesoForm.get('contraseña')?.invalid && accesoForm.get('contraseña')?.touched">
+							<span *ngIf="accesoForm.get('contraseña')?.errors?.['required']">Contraseña requerida</span>
+							<span *ngIf="accesoForm.get('contraseña')?.errors?.['minlength']">Mínimo 6 caracteres</span>
+						</div>
+					</div>
+
+					<div class="d-grid">
+						<button type="submit" class="btn btn-info" [disabled]="accesoForm.invalid">Crear</button>
+					</div>
+				</form>
+
+			</div>
+		</div>
+	</div>
+</div>

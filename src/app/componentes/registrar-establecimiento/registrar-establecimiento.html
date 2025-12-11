@@ -1,0 +1,75 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg p-4 rounded-4">
+        <button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
+          <i class="bi bi-arrow-left me-1"></i>
+          Regresar
+        </button>
+        <h2 class="text-center mb-4 text-primary fw-bold">Registro de Establecimiento</h2>
+
+        <form [formGroup]="establecimientoForm" (ngSubmit)="crearEstablecimiento()">
+          <!-- Identificador -->
+            <div class="mb-3">
+              <label class="form-label">Identificador:</label>
+              <input type="text" formControlName="identificador" class="form-control" placeholder="Ej: EST-001">
+              <div class="text-danger small mt-1"
+                   *ngIf="establecimientoForm.get('identificador')?.invalid && establecimientoForm.get('identificador')?.touched">
+                Campo obligatorio
+              </div>
+            </div>
+
+          <!-- Nombre -->
+          <div class="mb-3">
+            <label class="form-label">Nombre:</label>
+            <input type="text" formControlName="nombre" class="form-control" placeholder="Ingrese nombre del establecimiento">
+            <div class="text-danger small mt-1"
+                 *ngIf="establecimientoForm.get('nombre')?.invalid && establecimientoForm.get('nombre')?.touched">
+              Campo obligatorio
+            </div>
+          </div>
+
+          <!-- Dirección -->
+          <div class="mb-3">
+            <label class="form-label">Dirección:</label>
+            <input type="text" formControlName="direccion" class="form-control" placeholder="Ingrese dirección">
+            <div class="text-danger small mt-1"
+                 *ngIf="establecimientoForm.get('direccion')?.invalid && establecimientoForm.get('direccion')?.touched">
+              Campo obligatorio
+            </div>
+          </div>
+
+          <!-- Capacidad -->
+          <div class="mb-3">
+            <label class="form-label">Capacidad:</label>
+            <input type="number" formControlName="capacidad" class="form-control" placeholder="Ingrese capacidad en número">
+            <div class="text-danger small mt-1"
+                 *ngIf="establecimientoForm.get('capacidad')?.invalid && establecimientoForm.get('capacidad')?.touched">
+              Debe ser un número válido
+            </div>
+          </div>
+
+          <!-- Botón -->
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary" [disabled]="establecimientoForm.invalid || loading">
+              <span *ngIf="!loading">Registrar</span>
+              <span *ngIf="loading">
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Registrando...
+              </span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Mensaje -->
+        <p class="text-center mt-3 fw-semibold"
+           [ngClass]="{
+             'text-success': mensaje.startsWith('✅'),
+             'text-danger': mensaje.startsWith('❌')
+           }">
+          {{ mensaje }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

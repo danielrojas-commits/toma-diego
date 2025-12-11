@@ -1,0 +1,57 @@
+<div class="container mt-5">
+  <div class="text-center">
+    <h1 class="mb-4 title-background">Panel de Control</h1>
+    <p class="mb-5 title-background">Selecciona la acción que deseas realizar</p>
+  </div>
+  
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    <div class="col">
+      <div class="card h-100 border-0 text-center hover-card hover-card-primary">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+          <i class="bi bi-people fs-1 mb-3 text-primary"></i>
+          <h5 class="card-title">Estudiantes</h5>
+          <p class="card-text text-muted">Ver y administrar los estudiantes registrados.</p>
+          <a routerLink="/estudiantes" class="btn btn-primary mt-auto">Ir <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+
+        <!-- Botón de cerrar sesión fijo en esquina inferior derecha -->
+        <button (click)="logout()" class="btn btn-danger logout-btn position-fixed bottom-0 end-0 m-3 shadow" aria-label="Cerrar sesión">
+          Cerrar sesión
+        </button>
+
+    <div class="col">
+      <div class="card h-100 border-0 text-center hover-card hover-card-success">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+          <i class="bi bi-bicycle fs-1 mb-3 text-success"></i>
+          <h5 class="card-title">Bicicletas</h5>
+          <p class="card-text text-muted">Listado y gestión de las bicicletas.</p>
+          <a routerLink="/bicicletas" class="btn btn-success mt-auto">Ir <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card h-100 border-0 text-center hover-card hover-card-danger">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+          <i class="bi bi-building fs-1 mb-3 text-danger"></i>
+          <h5 class="card-title">Establecimientos</h5>
+          <p class="card-text text-muted">Ver y gestionar establecimientos registrados.</p>
+          <a routerLink="/establecimientos" class="btn btn-danger mt-auto">Ir <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card h-100 border-0 text-center hover-card hover-card-info">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+          <i class="bi bi-list-columns-reverse fs-1 mb-3 text-info"></i>
+          <h5 class="card-title">Accesos</h5>
+          <p class="card-text text-muted">Administrar usuarios y permisos del sistema.</p>
+          <a routerLink="/accesos" class="btn btn-info mt-auto text-white">Ir <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

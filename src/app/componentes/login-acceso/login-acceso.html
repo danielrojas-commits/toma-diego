@@ -1,0 +1,76 @@
+<div class="container mt-5">
+
+	<div class="row justify-content-center">
+		<div class="col-md-5">
+			<div class="card shadow-lg p-4 rounded-4">
+				<h2 class="text-center mb-3 text-primary fw-bold">Iniciar Sesión</h2>
+
+				<p class="text-center fw-bold"
+					 [ngClass]="{
+						 'text-success': mensaje.startsWith('✅'),
+						 'text-danger': mensaje.startsWith('❌'),
+						 'text-warning': mensaje.startsWith('⚠️')
+					 }">
+					{{ mensaje }}
+				</p>
+
+				<form [formGroup]="loginForm" (ngSubmit)="enviar()">
+					<div class="mb-3">
+						<label class="form-label">Correo</label>
+						<input type="email" formControlName="correo" class="form-control" placeholder="correo@ejemplo.cl">
+						<div class="text-danger small mt-1"
+								 *ngIf="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched">
+							Correo inválido o vacío
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Contraseña</label>
+						<input type="password" formControlName="contraseña" class="form-control" placeholder="Mínimo 6 caracteres">
+						<div class="text-danger small mt-1"
+								 *ngIf="loginForm.get('contraseña')?.invalid && loginForm.get('contraseña')?.touched">
+							<span *ngIf="loginForm.get('contraseña')?.errors?.['required']">Contraseña requerida</span>
+							<span *ngIf="loginForm.get('contraseña')?.errors?.['minlength']">Mínimo 6 caracteres</span>
+						</div>
+					</div>
+
+					<div class="d-grid">
+						<button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">Ingresar</button>
+					</div>
+
+					<div class="text-center mt-3">
+						<span class="text-muted">¿No tienes un acceso? </span>
+						<a routerLink="/crear-acceso" class="fw-bold">Regístrate</a>
+					</div>
+				</form>
+
+							<!-- Mostrar datos del usuario autenticado si están disponibles -->
+							<div *ngIf="userInfo" class="mt-3 card p-3 shadow-sm">
+								<h5 class="mb-2">Datos del usuario</h5>
+								<ul class="list-unstyled small mb-0">
+									<li *ngIf="userInfo.nombre"><strong>Nombre:</strong> {{ userInfo.nombre }}</li>
+									<li *ngIf="userInfo.apellido"><strong>Apellido:</strong> {{ userInfo.apellido }}</li>
+									<li *ngIf="userInfo.correo"><strong>Correo:</strong> {{ userInfo.correo }}</li>
+									<li *ngIf="userInfo.rut"><strong>RUT:</strong> {{ userInfo.rut }}</li>
+									<li *ngIf="userInfo._id"><strong>ID:</strong> {{ userInfo._id }}</li>
+									<li *ngIf="userInfo.fecha"><strong>Fecha:</strong> {{ userInfo.fecha | date }}</li>
+									<li *ngIf="userInfo.token"><strong>Token:</strong> <code>{{ userInfo.token }}</code></li>
+								</ul>
+							</div>
+
+									<!-- Mostrar respuesta cruda para depuración si no hay userInfo o para inspección -->
+									<div *ngIf="rawResponse && !userInfo" class="mt-3 card p-3 shadow-sm">
+										<h6 class="mb-2">Respuesta cruda (depuración)</h6>
+										<pre class="small" style="white-space:pre-wrap;">{{ rawResponse | json }}</pre>
+									</div>
+
+									<!-- Siempre mostrar opción de ver crudo (útil para debug) -->
+									<div *ngIf="rawResponse && userInfo" class="mt-3 card p-3 shadow-sm">
+										<h6 class="mb-2">Respuesta cruda</h6>
+										<pre class="small" style="white-space:pre-wrap;">{{ rawResponse | json }}</pre>
+									</div>
+
+			</div>
+		</div>
+	</div>
+</div>

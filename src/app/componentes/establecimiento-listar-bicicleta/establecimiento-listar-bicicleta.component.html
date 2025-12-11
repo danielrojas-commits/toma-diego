@@ -1,0 +1,108 @@
+<div class="container">
+  <button type="button" class="btn btn-secondary position-fixed top-0 end-0 m-3 shadow" (click)="goBack()">
+    <i class="bi bi-arrow-left me-1"></i>
+    Regresar
+  </button>
+  <h1>Gestión de Bicicletas - Establecimiento</h1>
+
+  
+  <section class="bicicletas-info">
+    <div *ngIf="showBicicletas" class="bicicletas-content">
+      <h2>Selecciona una Fecha</h2>
+      <div class="date-input">
+        <div class="d-flex gap-2 align-items-center">
+          <button class="btn btn-sm btn-outline-primary" (click)="setToday()">Hoy</button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="setYesterday()">Ayer</button>
+          <button class="btn-cargar btn btn-primary btn-sm" (click)="cargarBicicletas()">Cargar Bicicletas</button>
+        </div>
+      </div>
+
+      <!-- Búsqueda por RUT eliminada según solicitud -->
+
+      <!-- Filtrar por identificador -->
+      <section class="filtrar-identificador mt-3">
+        <h4>Filtrar por identificador (campus)</h4>
+        <div class="d-flex gap-2 align-items-center">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedIdentificador">
+            <option value="">-- Selecciona un identificador --</option>
+            <option *ngFor="let id of identificadores" [value]="id">{{ id }}</option>
+          </select>
+          <label class="small mb-0">Fecha:</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="identificadorDate" [max]="today" />
+          <button class="btn btn-primary btn-sm" (click)="filtrarPorIdentificador()">Mostrar</button>
+          <button class="btn btn-outline-primary btn-sm" (click)="filtrarPorIdentificadorYFecha()" title="Buscar por identificador y la fecha seleccionada">Mostrar en fecha</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="selectedIdentificador=''; error=''; bicicletas=[]">Limpiar</button>
+        </div>
+      </section>
+
+      <!-- Filtrar por identificador y rango de fechas -->
+      <section class="filtrar-identificador-rango mt-3">
+        <h4>Filtrar por identificador y rango de fechas</h4>
+        <div class="d-flex gap-2 align-items-center">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedIdentificador">
+            <option value="">-- Selecciona un identificador --</option>
+            <option *ngFor="let id of identificadores" [value]="id">{{ id }}</option>
+          </select>
+          <label class="small mb-0">Desde:</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" [max]="today" />
+          <label class="small mb-0">Hasta:</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" [max]="today" />
+          <button class="btn btn-primary btn-sm" (click)="filtrarPorIdentificadorYRango()">Aplicar</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="selectedIdentificador=''; dateFrom=''; dateTo=''; error=''; bicicletas=[]">Limpiar</button>
+        </div>
+      </section>
+
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+      </div>
+
+      <div *ngIf="loading" class="loading">
+        Cargando bicicletas...
+      </div>
+
+      <div *ngIf="bicicletas.length > 0 && !loading" class="bicicletas-list">
+        <h3>Bicicletas del {{ selectedDate | date: 'dd/MM/yyyy' }}</h3>
+        <div class="table-wrapper">
+          <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>RUT</th>
+              <th>Correo</th>
+              <th>Marca</th>
+              <th>Establecimiento</th>
+              <th>Estacionamiento</th>
+              <th>Fecha creación</th>
+              <th>Fecha actualización</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bicicleta of bicicletas">
+              <td>{{ bicicleta.ownerNombre || '-' }}</td>
+              <td>{{ bicicleta.ownerApellido || '-' }}</td>
+              <td>{{ bicicleta.ownerRut || '-' }}</td>
+              <td>{{ bicicleta.ownerCorreo || '-' }}</td>
+              <td>{{ bicicleta.marca || 'N/A' }}</td>
+              <td>{{ bicicleta.establecimiento || bicicleta.identificador || bicicleta.ubicacion || 'N/A' }}</td>
+              <td>{{ bicicleta.estacionamiento || 'N/A' }}</td>
+              <td>
+                <ng-container *ngIf="bicicleta.fechaCreacion; else noCreation">
+                  {{ bicicleta.fechaCreacion | date:'short' }}
+                </ng-container>
+                <ng-template #noCreation>N/A</ng-template>
+              </td>
+              <td>
+                <ng-container *ngIf="bicicleta.fechaActualizacion; else noUpdate">
+                  {{ bicicleta.fechaActualizacion | date:'short' }}
+                </ng-container>
+                <ng-template #noUpdate>-</ng-template>
+              </td>
+            </tr>
+          </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

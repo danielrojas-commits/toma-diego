@@ -1,0 +1,133 @@
+<div class="container mt-5">
+	<button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
+		<i class="bi bi-arrow-left me-1"></i> Regresar
+	</button>
+
+	<h2 class="text-center mb-3">Listado de Establecimientos</h2>
+
+	<p class="text-center fw-bold"
+		 [ngClass]="{
+			 'text-success': mensaje.startsWith('✅'),
+			 'text-danger': mensaje.startsWith('❌'),
+			 'text-warning': mensaje.startsWith('⚠️')
+		 }">
+		{{ mensaje }}
+	</p>
+
+	
+	<div class="row mb-3">
+		<div class="col-md-8">
+			<form [formGroup]="searchForm" (ngSubmit)="buscarPorId()" class="d-flex gap-2">
+				<input formControlName="id" class="form-control" placeholder="Buscar establecimiento por ID" />
+				<button class="btn btn-outline-primary" [disabled]="searchForm.invalid">Buscar</button>
+				<button type="button" class="btn btn-secondary" (click)="limpiarBusqueda()">Limpiar</button>
+			</form>
+		</div>
+	</div>
+
+	
+	<div *ngIf="foundEstablishment" class="card p-3 mb-3 shadow-sm">
+		<h5 class="mb-2">Establecimiento encontrado</h5>
+		<ul class="list-unstyled small mb-0">
+			<li *ngIf="foundEstablishment['identificador']"><strong>Identificador:</strong> {{ foundEstablishment['identificador'] }}</li>
+			<li *ngIf="foundEstablishment['nombre']"><strong>Nombre:</strong> {{ foundEstablishment['nombre'] }}</li>
+			<li *ngIf="foundEstablishment['direccion']"><strong>Dirección:</strong> {{ foundEstablishment['direccion'] }}</li>
+			<li *ngIf="foundEstablishment['capacidad']"><strong>Capacidad:</strong> {{ foundEstablishment['capacidad'] }}</li>
+			<li *ngIf="foundEstablishment['_id']"><strong>ID:</strong> {{ foundEstablishment['_id'] }}</li>
+		</ul>
+		<div class="mt-3">
+			<button class="btn btn-secondary me-2" (click)="limpiarBusqueda()">Cerrar</button>
+			<button class="btn btn-outline-warning" (click)="startEdit(foundEstablishment)">
+				<i class="bi bi-pencil-square me-1"></i> Editar
+			</button>
+		</div>
+	</div>
+
+	<!-- Formulario de edición -->
+	<div *ngIf="editingId" class="card p-3 mb-3 shadow-sm border-warning">
+		<h5 class="mb-2">Editar Establecimiento (ID: {{ editingId }})</h5>
+		<form [formGroup]="editForm" (ngSubmit)="guardarEdicion()">
+			<div class="row g-2">
+				<div class="col-md-3">
+					<label class="form-label small">Identificador</label>
+					<input formControlName="identificador" class="form-control" />
+				</div>
+				<div class="col-md-4">
+					<label class="form-label small">Nombre</label>
+					<input formControlName="nombre" class="form-control" />
+				</div>
+				<div class="col-md-4">
+					<label class="form-label small">Dirección</label>
+					<input formControlName="direccion" class="form-control" />
+				</div>
+				<div class="col-md-1">
+					<label class="form-label small">Cap.</label>
+					<input formControlName="capacidad" type="number" class="form-control" />
+				</div>
+			</div>
+			<div class="mt-3">
+				<button type="submit" class="btn btn-primary me-2" [disabled]="editForm.invalid || loading">Guardar</button>
+				<button type="button" class="btn btn-secondary" (click)="cancelarEdicion()">Cancelar</button>
+			</div>
+		</form>
+	</div>
+
+	<div *ngIf="loading" class="text-center my-4">
+		<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+	</div>
+
+	<div *ngIf="!loading && establecimientos.length === 0" class="text-center text-muted">No hay establecimientos registrados.</div>
+
+	<div *ngIf="rawError" class="mt-3 card p-3 shadow-sm">
+		<h6 class="mb-2">Error (respuesta cruda)</h6>
+		<pre class="small" style="white-space:pre-wrap;">{{ rawError | json }}</pre>
+	</div>
+
+	<div class="row mb-3" *ngIf="!loading && establecimientos.length > 0">
+		<div class="col-md-12">
+			<button class="btn btn-outline-secondary" (click)="recargar()">
+				<i class="bi bi-arrow-clockwise me-1"></i> Recargar
+			</button>
+		</div>
+	</div>
+
+	<div *ngIf="!loading && establecimientos.length > 0" class="row g-4 mt-2">
+		<div *ngFor="let est of establecimientos" class="col-md-6 col-lg-4">
+			<div class="card h-100 shadow-sm border-0 establecimiento-card">
+				<div class="card-body">
+					<div class="mb-3">
+						<i class="bi bi-building text-primary fs-3"></i>
+					</div>
+					<h5 class="card-title">{{ est['nombre'] ?? '-' }}</h5>
+					<ul class="list-unstyled small text-muted">
+						<li><strong>ID:</strong> {{ est['_id'] ?? est['identificador'] ?? '-' }}</li>
+						<li><strong>Dirección:</strong> {{ est['direccion'] ?? '-' }}</li>
+						<li><strong>Capacidad:</strong> {{ est['capacidad'] ?? '-' }} personas</li>
+					</ul>
+				
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="!loading && establecimientos.length > 0" class="table-responsive mt-3">
+		<table class="table table-hover align-middle">
+			<thead class="table-light">
+				<tr>
+					<th>Nombre</th>
+					<th>Dirección</th>
+					<th>Capacidad</th>
+					<th>ID</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let est of establecimientos">
+					<td>{{ est['nombre'] ?? '-' }}</td>
+					<td>{{ est['direccion'] ?? '-' }}</td>
+					<td>{{ est['capacidad'] ?? '-' }}</td>
+					<td><small class="text-muted">{{ est['_id'] ?? est['identificador'] ?? '-' }}</small></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

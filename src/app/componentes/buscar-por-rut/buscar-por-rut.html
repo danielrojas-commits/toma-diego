@@ -1,0 +1,56 @@
+<div class="container mt-4">
+  <button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
+      <i class="bi bi-arrow-left me-1"></i>
+      Regresar
+    </button>
+  <h2 class="text-center mb-4">Buscar Estudiante por RUT</h2>
+
+  <!-- Mensajes -->
+  <div *ngIf="mensaje" class="alert alert-{{ mensajeTipo }} alert-dismissible fade show" role="alert">
+    {{ mensaje }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <!-- Formulario de búsqueda -->
+  <form (ngSubmit)="buscarEstudiante()" class="d-flex flex-column flex-md-row justify-content-center gap-2 mb-4">
+    <input
+      type="text"
+      class="form-control w-50 mx-auto"
+      placeholder="Ejemplo: 12345678-9"
+      [(ngModel)]="rut"
+      name="rut"
+      required
+    />
+    <button type="submit" class="btn btn-primary">
+      <i class="bi bi-search"></i> Buscar
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="limpiar()">
+      <i class="bi bi-x-circle"></i> Limpiar
+    </button>
+  </form>
+
+  <!-- Cargando -->
+  <div *ngIf="cargando" class="text-center">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p>Buscando estudiante...</p>
+  </div>
+
+  <!-- Resultado -->
+  <div *ngIf="!cargando && estudiante" class="card mx-auto shadow-sm border-0" style="max-width: 30rem;">
+    <div class="card-header bg-primary text-white text-center">
+      <strong>Datos del Estudiante</strong>
+    </div>
+    <div class="card-body">
+      <p><strong>Nombre:</strong> {{ estudiante.nombre }}</p>
+      <p><strong>Apellido:</strong> {{ estudiante.apellido }}</p>
+      <p><strong>RUT:</strong> {{ estudiante.rut }}</p>
+      <p><strong>Correo:</strong> {{ estudiante.correo }}</p>
+    </div>
+  </div>
+
+  <!-- Sin resultados -->
+  <div *ngIf="!cargando && !estudiante && mensajeTipo === 'danger'" class="text-center text-muted">
+    <i class="bi bi-person-x fs-3"></i>
+    <p>No se encontró ningún estudiante con ese RUT.</p>
+  </div>
+</div>
