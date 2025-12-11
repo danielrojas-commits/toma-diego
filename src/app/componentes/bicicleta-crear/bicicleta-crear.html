@@ -100,6 +100,34 @@
         <li><strong>Estacionamiento:</strong> {{ bicicletaDeExito.estacionamiento }}</li>
       </ul>
     </div>
+    
+    <div *ngIf="bicicletaDeExito" class="card-body text-start bg-light rounded mb-3">
+      <h5 class="card-title">Propietario</h5>
+      <ul class="list-unstyled">
+        <li *ngIf="estudianteEncontrado"><strong>Nombre:</strong> {{ estudianteEncontrado.nombre }} {{ estudianteEncontrado.apellido }}</li>
+        <li *ngIf="estudianteEncontrado"><strong>RUT:</strong> {{ estudianteEncontrado.rut }}</li>
+        <li *ngIf="estudianteEncontrado"><strong>Correo:</strong> {{ estudianteEncontrado.correo }}</li>
+        <li *ngIf="!estudianteEncontrado && bicicletaDeExito.rut"><strong>RUT:</strong> {{ bicicletaDeExito.rut }}</li>
+      </ul>
+    </div>
+
+    <div *ngIf="bicicletaDeExito" class="card-body text-start bg-light rounded mb-3">
+      <h5 class="card-title">Metadatos</h5>
+      <ul class="list-unstyled">
+        <li *ngIf="bicicletaDeExito._id"><strong>ID:</strong> {{ bicicletaDeExito._id }}</li>
+        <li *ngIf="bicicletaDeExito.identificador"><strong>Identificador:</strong> {{ bicicletaDeExito.identificador }}</li>
+        <li *ngIf="bicicletaDeExito.createdAt"><strong>Creado:</strong> {{ bicicletaDeExito.createdAt | date:'short' }}</li>
+        <li *ngIf="bicicletaDeExito.updatedAt"><strong>Actualizado:</strong> {{ bicicletaDeExito.updatedAt | date:'short' }}</li>
+      </ul>
+    </div>
+
+    <div *ngIf="bicicletaDeExito" class="text-start small text-muted mt-2">
+      <h6 class="mb-1">Debug (respuesta cruda normalizada):</h6>
+      <pre style="max-height:200px;overflow:auto;" class="bg-white p-2 border">{{ bicicletaDeExito | json }}</pre>
+      <div *ngIf="estudianteEncontrado" class="mt-2"><strong>Propietario normalizado:</strong>
+        <pre class="bg-white p-2 border small">{{ estudianteEncontrado | json }}</pre>
+      </div>
+    </div>
 
     <button class="btn btn-primary w-100" (click)="reiniciarFlujo()">
       Registrar otra bicicleta

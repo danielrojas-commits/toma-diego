@@ -281,7 +281,8 @@ export class BicicletaCrear {
 
   /** Muestra la pantalla de éxito con los datos de la bicicleta procesada. */
   private mostrarExito(payload: any, action: 'created' | 'updated') {
-    this.bicicletaDeExito = payload;
+    // Normalizar la respuesta del backend para extraer el objeto bicicleta real
+    this.bicicletaDeExito = this.normalizeBikeResponse(payload);
     this.mensaje = {
       text: action === 'created'
         ? 'Bicicleta registrada correctamente.'
@@ -289,6 +290,39 @@ export class BicicletaCrear {
       type: 'success'
     };
     this.pasoActual = 'exito';
+    // Si no tenemos información del propietario, intentar obtenerla por rut presente en la bici
+    try {
+      const rutFromBike = (this.bicicletaDeExito as any)?.rut || (payload && payload.rut);
+      if (!this.estudianteEncontrado && rutFromBike) {
+        this.estudianteService.buscarPorRut(rutFromBike).subscribe({
+          next: (est) => { this.estudianteEncontrado = est; },
+          error: () => { /* silencioso */ }
+        });
+      }
+    } catch (e) {}
+  }
+
+  private normalizeBikeResponse(payload: any): BicicletaModel {
+    if (!payload) return {} as BicicletaModel;
+    let obj = payload;
+    // Unwrap capas comunes
+    if (payload.data) obj = payload.data;
+    else if (payload.bike) obj = payload.bike;
+    else if (payload.bicicleta) obj = payload.bicicleta;
+    else if (payload.result) obj = payload.result;
+    else if (payload.created) obj = payload.created;
+
+    const normalized: any = {};
+    normalized._id = obj._id || obj.id || obj.insertedId || obj._key || obj.uid || null;
+    normalized.marca = obj.marca || obj.brand || '';
+    normalized.modelo = obj.modelo || obj.model || '';
+    normalized.color = obj.color || obj.colour || '';
+    normalized.estacionamiento = obj.estacionamiento || obj.location || obj.slot || '';
+    normalized.identificador = obj.identificador || obj.identify || obj.ident || '';
+    normalized.rut = obj.rut || obj.ownerRut || obj.estudianteRut || '';
+    normalized.createdAt = obj.createdAt || obj.fechaRegistro || obj.created_at || null;
+    normalized.updatedAt = obj.updatedAt || obj.updated_at || null;
+    return normalized as BicicletaModel;
   }
 
 }

@@ -70,6 +70,17 @@ export class BicicletaEstudianteCrear {
       .trim();
   }
 
+  // Mapa local de identificadores conocido (nombre normalizado -> _id)
+  private readonly LOCAL_IDENTIFICADOR_MAP: Record<string, string> = {
+    'campus lincoyan': '690d03b8394c53154066b6e0',
+    'campus puntanorte': '6917e8696768360d94dbd74a',
+    'campus chinchorro': '69290d0937e2c40ae2d3ddfe',
+    // variantes comunes
+    'lincoyan': '690d03b8394c53154066b6e0',
+    'puntanorte': '6917e8696768360d94dbd74a',
+    'chinchorro': '69290d0937e2c40ae2d3ddfe'
+  };
+
   private route = inject(ActivatedRoute);
 
   // Leemos los query params (si el usuario llegó por un QR con estacionamiento/identificador)
@@ -234,6 +245,13 @@ export class BicicletaEstudianteCrear {
         if (!found) {
           // intentar coincidencias más flexibles
           found = list.find(e => this.normalizeString(e.nombre).includes(targetNorm) || targetNorm.includes(this.normalizeString(e.nombre)));
+        }
+        // Si no encontramos en la lista remota, intentar el mapa local conocido
+        if (!found) {
+          const localId = this.LOCAL_IDENTIFICADOR_MAP[targetNorm] || this.LOCAL_IDENTIFICADOR_MAP[id?.toLowerCase?.() ?? ''];
+          if (localId) {
+            found = { _id: localId, nombre: id } as EstablecimientoModel;
+          }
         }
         if (found && found._id) {
           // Guardamos el nombre para mostrar y usamos el _id en el formulario

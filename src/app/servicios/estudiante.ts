@@ -1,7 +1,8 @@
 import { Injectable, inject  } from '@angular/core';
 //Nuevo agregado
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 //Interface sirve como un modelo para dar formato a una variable 
 export interface EstudianteModel {
@@ -35,7 +36,28 @@ export class Estudiante {
   }
 
   buscarPorRut(rut: string): Observable<EstudianteModel> {
-    return this.http.get<EstudianteModel>(`${this.apiUrl}/buscar/${rut}`);
+    const candidates = [
+      `${this.apiUrl}/buscar/${rut}`,
+      `${this.apiUrl}/rut/${rut}`,
+      `${this.apiUrl}/${rut}`,
+      `${this.apiUrl}/buscar?rut=${encodeURIComponent(rut)}`
+    ];
+
+    const tryIndex = (i: number): Observable<EstudianteModel> => {
+      if (i >= candidates.length) {
+        return throwError(() => ({ status: 404, message: 'Estudiante no encontrado' }));
+      }
+      return this.http.get<EstudianteModel>(candidates[i]).pipe(
+        catchError((err: any) => {
+          if (err?.status === 404) {
+            return tryIndex(i + 1);
+          }
+          return throwError(() => err);
+        })
+      );
+    };
+
+    return tryIndex(0);
   }
 
   //Con estos dos métodos, estamos conectandonos con el API (backend) en la nube para crear y obtener estudiante

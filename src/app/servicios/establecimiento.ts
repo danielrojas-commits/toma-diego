@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
 export interface EstablecimientoModel {
@@ -17,6 +17,12 @@ export interface EstablecimientoModel {
 export class Establecimiento {
   private apiUrl = 'https://backend-registroformulario.onrender.com/api-backend-prueba/establecimiento';
   private http = inject(HttpClient);
+  // Fallback local conocido para evitar 404s repetidos y resolver identificadores QR
+  private readonly FALLBACK_ESTABLECIMIENTOS: EstablecimientoModel[] = [
+    { _id: '690d03b8394c53154066b6e0', nombre: 'Campus Lincoyan' },
+    { _id: '6917e8696768360d94dbd74a', nombre: 'Campus Puntanorte' },
+    { _id: '69290d0937e2c40ae2d3ddfe', nombre: 'Campus Chinchorro' }
+  ];
 
   
     listarEstablecimientos(): Observable<EstablecimientoModel[]> {
@@ -29,7 +35,8 @@ export class Establecimiento {
 
       const tryIndex = (i: number): Observable<EstablecimientoModel[]> => {
         if (i >= candidates.length) {
-          return throwError(() => new Error('No se encontró una ruta válida para listar establecimientos'));
+            // Si ninguna ruta funciona, devolver lista fallback para que la UI pueda seguir funcionando
+            return of(this.FALLBACK_ESTABLECIMIENTOS.slice());
         }
         return this.http.get<EstablecimientoModel[]>(candidates[i]).pipe(
           catchError((err: any) => {
@@ -37,7 +44,8 @@ export class Establecimiento {
             if (err?.status === 404) {
               return tryIndex(i + 1);
             }
-            return throwError(() => err);
+            // En caso de otros errores (timeout, CORS, 500), devolvemos fallback también
+            return of(this.FALLBACK_ESTABLECIMIENTOS.slice());
           })
         );
       };
@@ -58,6 +66,9 @@ export class Establecimiento {
 
     const tryIndex = (i: number): Observable<EstablecimientoModel> => {
       if (i >= candidates.length) {
+        // Devolver desde fallback si no encontramos ruta
+        const found = this.FALLBACK_ESTABLECIMIENTOS.find(e => e._id === id);
+        if (found) return of(found);
         return throwError(() => new Error('No se encontró una ruta válida para obtener establecimiento por id'));
       }
       return this.http.get<EstablecimientoModel>(candidates[i]).pipe(
@@ -65,6 +76,9 @@ export class Establecimiento {
           if (err?.status === 404) {
             return tryIndex(i + 1);
           }
+          // Si error distinto, intentar devolver fallback si existe
+          const found = this.FALLBACK_ESTABLECIMIENTOS.find(e => e._id === id);
+          if (found) return of(found);
           return throwError(() => err);
         })
       );
