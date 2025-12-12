@@ -3,6 +3,7 @@ import { Estudiante, EstudianteModel } from '../../servicios/estudiante';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { RutUtils } from '../../servicios/rut.utils';
 
 
 @Component({
@@ -60,4 +61,13 @@ export class BuscarPorRut {
     this.location.back();
   }
 
+  formatRutOnBlur(): void {
+    if (this.rut) {
+      this.rut = RutUtils.format(this.rut);
+    }
+  }
+
+  sanitizeRutInput(event: Event): void {
+    this.rut = RutUtils.handleInput(event);
+  }
 }

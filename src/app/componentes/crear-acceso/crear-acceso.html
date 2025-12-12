@@ -1,7 +1,21 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid position-relative">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/inicio" style="cursor: pointer;">
+      <img src="assets/img/LogoChi.jpg" alt="Logo" height="40">
+      <span class="ms-2">CFT Estatal Arica y Parinacota</span>
+    </a>
+    <div class="position-absolute top-50 start-50 translate-middle d-none d-lg-block">
+      <span class="text-white fs-4 fw-bold text-uppercase">Accesos</span>
+    </div>
+    <button type="button" class="btn btn-warning nav-action-btn ms-auto" (click)="goBack()">
+      <i class="bi bi-arrow-left me-1"></i>
+      Regresar
+    </button>
+  </div>
+</nav>
+
+
 <div class="container mt-5">
-	<button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
-		<i class="bi bi-arrow-left me-1"></i> Regresar
-	</button>
 
 	<div class="row justify-content-center">
 		<div class="col-md-6">
@@ -47,7 +61,7 @@
 
 					<div class="mb-3">
 						<label class="form-label">RUT</label>
-						<input type="text" formControlName="rut" class="form-control" placeholder="12345678-9">
+						<input type="text" formControlName="rut" class="form-control" placeholder="12345678-9" maxlength="12" (input)="sanitizeRutInput()" (blur)="formatRutIfNeeded()">
 						<div class="text-danger small mt-1"
 								 *ngIf="accesoForm.get('rut')?.invalid && accesoForm.get('rut')?.touched">
 							Campo obligatorio

@@ -12,10 +12,7 @@ export interface BicicletaModel {
   estacionamiento: string;
   identificador?: string;
   establecimiento?: string;
-  fechaRegistro?: Date;
-  rut?: string;
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
+  fechaRegistro: Date;
 }
 
 @Injectable({
@@ -40,91 +37,28 @@ export class Bicicleta {
   }): Observable<any> {
     const primaryUrl = `${this.apiUrl}/registrar`;
     console.debug('[Bicicleta.service] registrarBicicleta primary', primaryUrl, data);
-    // Generar variantes de body intentando distintas combinaciones de nombres de campo
-    const generateVariants = (base: any): any[] => {
-      const out: any[] = [];
-      const estacionamiento = base.estacionamiento;
-      const estacionamientoNumMatch = ('' + estacionamiento).match(/^A(\d+)$/i);
-      const estacionamientoNum = estacionamientoNumMatch ? String(Number(estacionamientoNumMatch[1])) : null;
 
-      // formas de campo para el estudiante
-      const studentKeys = [
-        { k: 'rut', wrap: false },
-        { k: 'rut_estudiante', wrap: false },
-        { k: 'estudianteRut', wrap: false },
-        { k: 'estudianteId', wrap: false },
-        { k: 'estudiante_id', wrap: false },
-        { k: 'ownerRut', wrap: false },
-        { k: 'owner_id', wrap: false },
-        { k: 'estudiante', wrap: true } // objeto { estudiante: { rut: ... } }
-      ];
-
-      // formas de campo para identificador/establecimiento
-      const identKeys = [
-        (id: any) => ({ identificador: id }),
-        (id: any) => ({ identificadorId: id }),
-        (id: any) => ({ establecimiento: id }),
-        (id: any) => ({ establecimientoId: id })
-      ];
-
-      // base candidate
-      const baseCandidate = { ...base };
-      // remove undefined fields
-      Object.keys(baseCandidate).forEach(k => baseCandidate[k] === undefined && delete baseCandidate[k]);
-
-      for (const sk of studentKeys) {
-        let studentForms: any[] = [];
-        if (sk.wrap) {
-          studentForms.push({ estudiante: { rut: base.rut } });
-        } else {
-          const obj: any = {};
-          obj[sk.k] = base.rut;
-          studentForms.push(obj);
-        }
-
-        for (const sf of studentForms) {
-          // identificador forms: if base has identificador, try both name and id
-          const identVals = [] as any[];
-          if ((base as any).identificador) identVals.push((base as any).identificador);
-          if ((base as any).identificadorId) identVals.push((base as any).identificadorId);
-          if (identVals.length === 0) identVals.push(undefined);
-
-          for (const identVal of identVals) {
-            const identForms = identVal === undefined ? [() => ({})] : identKeys.map(fn => (id: any) => fn(id));
-            const identFns = identVal === undefined ? [() => ({})] : identForms.map((f: any) => ( () => f(identVal) ));
-
-            for (const identFn of identFns) {
-              // build candidate
-              const candidate: any = { ...baseCandidate };
-              // remove original rut to avoid duplication
-              delete candidate.rut;
-              Object.assign(candidate, sf);
-              Object.assign(candidate, identFn());
-              // estacionamiento variants
-              out.push({ ...candidate });
-              if (estacionamientoNum) out.push({ ...candidate, estacionamiento: estacionamientoNum, estacionamientoNumero: Number(estacionamientoNum) });
-              // with fechaRegistro
-              out.push({ ...candidate, fechaRegistro: new Date().toISOString() });
-            }
-          }
-        }
-      }
-
-      // Ensure uniqueness by JSON key
-      const uniq: any[] = [];
-      const seen = new Set<string>();
-      for (const o of out) {
-        const key = JSON.stringify(o);
-        if (!seen.has(key)) { seen.add(key); uniq.push(o); }
-      }
-      return uniq;
-    };
-
-    const variants: Array<any> = generateVariants(data);
+    // Preparar variantes de body para intentar en caso de validaciones diferentes
+    const variants: Array<any> = [];
+    // Variante base: tal como viene
+    variants.push(data);
+    // Variante: sin 'identificador' (si existe) — algunos endpoints no esperan este campo
+    const { identificador, estacionamiento, ...rest } = (data as any);
+    if (identificador !== undefined) {
+      variants.push({ ...rest, estacionamiento });
+    }
+    // Variante: estacionamiento como número si viene en formato A<number>
+    const m = (estacionamiento || '').toString().match(/^A(\d+)$/i);
+    if (m) {
+      const num = Number(m[1]);
+      variants.push({ ...data, estacionamiento: String(num), estacionamientoNumero: num });
+    }
+    // Variante: incluir fechaRegistro (algunos backends la requieren)
+    variants.push({ ...data, fechaRegistro: new Date().toISOString() });
 
     const tryVariant = (i: number): Observable<any> => {
       if (i >= variants.length) {
-        // Ninguna variante funcionó en /registrar -> intentar POST a la raíz
+        // Ninguna variante funcionó en el endpoint /registrar -> intentar fallback a la raíz
         console.warn('[Bicicleta.service] todas las variantes en /registrar fallaron, intentando POST a la raíz');
         return this.http.post(`${this.apiUrl}`, data).pipe(
           catchError((e: any) => {
@@ -138,15 +72,13 @@ export class Bicicleta {
       return this.http.post(primaryUrl, body).pipe(
         catchError((err: any) => {
           console.warn('[Bicicleta.service] variante /registrar falló', i, err?.status);
-          // Log del detalle para facilitar diagnóstico
-          console.error('[Bicicleta.service] detalle error servidor:', err?.error ?? err);
 
-          // Si recibe 400/422, seguir probando variantes porque puede faltar campo concreto
           if (err?.status === 400 || err?.status === 422) {
+          
+            console.error('[Bicicleta.service] detalle error servidor:', err?.error);
             return tryVariant(i + 1);
           }
-
-          // Si endpoint no existe, intentar POST a la raíz
+         
           if (err?.status === 404) {
             console.warn('[Bicicleta.service] /registrar no existe (404), intentando POST a la raíz');
             return this.http.post(`${this.apiUrl}`, data).pipe(

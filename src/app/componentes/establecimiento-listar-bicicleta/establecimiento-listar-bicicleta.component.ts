@@ -3,6 +3,7 @@ import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of, Observable } from 'rxjs';
+import { RouterModule } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { Bicicleta } from '../../servicios/bicicleta';
 import { Estudiante } from '../../servicios/estudiante';
@@ -10,7 +11,7 @@ import { Estudiante } from '../../servicios/estudiante';
 @Component({
   selector: 'app-establecimiento-listar-bicicleta',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './establecimiento-listar-bicicleta.component.html',
   styleUrls: ['./establecimiento-listar-bicicleta.component.css']
 })

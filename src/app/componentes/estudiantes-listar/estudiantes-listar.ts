@@ -1,12 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Location } from '@angular/common';
-import { Estudiante, EstudianteModel } from '../../servicios/estudiante'; // ajusta la ruta según tu estructura
+import { Estudiante, EstudianteModel } from '../../servicios/estudiante';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { RutUtils } from '../../servicios/rut.utils';
 
 @Component({
   selector: 'app-estudiantes-listar',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './estudiantes-listar.html',
   styleUrl: './estudiantes-listar.css'
 })
@@ -20,6 +22,8 @@ export class EstudiantesListar {
   error = '';
   mensaje = '';
   mensajeTipo: 'success' | 'danger' | '' = '';
+  terminoBusqueda: string = '';
+  criterioBusqueda: 'rut' | 'nombreApellido' | 'correo' = 'rut';
 
   ngOnInit(): void {
     this.obtenerEstudiantes();
@@ -60,11 +64,48 @@ export class EstudiantesListar {
       },
     });
 
-    // Oculta la alerta después de 4 segundos
     setTimeout(() => {
       this.mensaje = '';
       this.mensajeTipo = '';
     }, 4000);
+  }
+
+  get estudiantesFiltrados(): EstudianteModel[] {
+    if (!this.terminoBusqueda) {
+      return this.estudiantes;
+    }
+    const term = this.terminoBusqueda.toLowerCase();
+    return this.estudiantes.filter(est => {
+      switch (this.criterioBusqueda) {
+        case 'rut':
+          return RutUtils.clean(est.rut).includes(RutUtils.clean(term));
+        case 'nombreApellido':
+          const nombreCompleto = `${est.nombre} ${est.apellido}`.toLowerCase();
+          return nombreCompleto.includes(term);
+        case 'correo':
+          return est.correo.toLowerCase().includes(term);
+        default:
+          return false;
+      }
+    });
+  }
+
+  formatRutOnBlur(): void {
+    if (this.criterioBusqueda === 'rut' && this.terminoBusqueda) {
+      this.terminoBusqueda = RutUtils.format(this.terminoBusqueda);
+    }
+  }
+
+  sanitizeRutInput(event: Event): void {
+    if (this.criterioBusqueda === 'rut') {
+      this.terminoBusqueda = RutUtils.handleInput(event);
+    } else {
+      this.terminoBusqueda = (event.target as HTMLInputElement).value;
+    }
+  }
+
+  onCriterioChange(): void {
+    this.terminoBusqueda = '';
   }
 
   goBack() { try { this.location.back(); } catch (e) { console.warn('goBack failed', e); } }

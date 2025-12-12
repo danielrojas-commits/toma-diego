@@ -3,6 +3,7 @@ import { Location } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { RutUtils } from '../../servicios/rut.utils';
 import { Acceso } from '../../servicios/acceso';
 
 @Component({
@@ -63,4 +64,30 @@ export class CrearAcceso {
 
   goBack() { try { this.location.back(); } catch (e) { console.warn('goBack failed', e); } }
 
+  formatRutIfNeeded(): void {
+    const control = this.accesoForm.get('rut');
+    if (!control) return;
+    const raw = (control.value || '').toString();
+    const formatted = RutUtils.format(raw);
+    
+    if (formatted) {
+      control.setValue(formatted, { emitEvent: false });
+    }
+  }
+
+  sanitizeRutInput(): void {
+    const control = this.accesoForm.get('rut');
+    if (!control) return;
+    const raw = (control.value || '').toString();
+    const cleaned = RutUtils.clean(raw);
+    
+    if (cleaned !== raw) {
+      control.setValue(cleaned, { emitEvent: false });
+    }
+    if (cleaned.length === 9 || cleaned.length === 10) {
+      const formatted = RutUtils.format(cleaned);
+      control.setValue(formatted, { emitEvent: false });
+    }
+  }
 }
+

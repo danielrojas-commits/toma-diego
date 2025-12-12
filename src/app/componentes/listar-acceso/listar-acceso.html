@@ -1,9 +1,26 @@
-<div class="container mt-5">
-	<button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
-		<i class="bi bi-arrow-left me-1"></i> Regresar
-	</button>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid position-relative">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/inicio" style="cursor: pointer;">
+      <img src="assets/img/LogoChi.jpg" alt="Logo" height="40">
+      <span class="ms-2">CFT Estatal Arica y Parinacota</span>
+    </a>
+    <div class="position-absolute top-50 start-50 translate-middle d-none d-lg-block">
+      <span class="text-white fs-4 fw-bold text-uppercase">Acceso</span>
+    </div>
+    <button type="button" class="btn btn-warning nav-action-btn ms-auto" (click)="goBack()">
+      <i class="bi bi-arrow-left me-1"></i>
+      Regresar
+    </button>
+  </div>
+</nav>
 
-	<h2 class="text-center mb-3">Listado de Accesos</h2>
+
+
+
+
+
+<div class="container mt-5">
+	<h2 class="mb-4 title-background-primary">Listado de Accesos</h2>
 
 	<p class="text-center fw-bold"
 		 [ngClass]="{
@@ -31,7 +48,7 @@
 		<div class="col-md-8">
 			<form [formGroup]="searchForm" (ngSubmit)="buscarPorId()" class="d-flex gap-2">
 				<input formControlName="id" class="form-control" placeholder="Buscar por ID de usuario" />
-				<button class="btn btn-outline-primary" [disabled]="searchForm.invalid">Buscar</button>
+				<button class="btn btn-primary" [disabled]="searchForm.invalid">Buscar</button>
 				<button type="button" class="btn btn-secondary" (click)="limpiarBusqueda()">Limpiar</button>
 			</form>
 		</div>
@@ -51,7 +68,7 @@
 				<li *ngIf="foundUser['_id']"><strong>ID:</strong> {{ foundUser['_id'] }}</li>
 			</ul>
 			<div class="mt-3">
-				<button class="btn btn-outline-primary me-2" (click)="startEdit()">Editar</button>
+				<button class="btn btn-primary me-2" (click)="startEdit()">Editar</button>
 				<button class="btn btn-danger me-2" (click)="eliminarUsuarioEncontrado()">Eliminar</button>
 				<button class="btn btn-secondary" (click)="limpiarBusqueda()">Cerrar</button>
 			</div>

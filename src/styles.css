@@ -7,7 +7,7 @@ body, html {
 }
 
 body {
-  background-image: url('../src/assets/img/Fondo-Quiza.png');
+  background-image: url('../src/assets/img/Fondo.png');
 
   background-size: cover;
 
@@ -20,3 +20,172 @@ body {
   background-color: #f4f4f4; 
 }
 
+/* --- General Component Styles --- */
+
+/* Background for titles with semi-transparent black overlay */
+.title-background {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+}
+
+/* Blue background for titles, centered and fitted to text */
+.title-background-primary {
+  background-color: #0d6efd;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Green background for titles, centered and fitted to text */
+.title-background-success {
+  background-color: #198754;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Green background for titles, centered and fitted to text */
+.title-background-success {
+  background-color: #198754;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Background for inline text to improve readability */
+.readable-background {
+  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.3rem;
+  color: #212529;
+  width: fit-content;
+}
+
+/* Card styling with glassmorphism effect (blur) and shadow */
+.card {
+  background-color: rgba(255, 255, 255, 0.712) !important; 
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-height: 280px; 
+}
+
+/* Base class for cards with hover effects - defines transitions */
+.hover-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, outline 0.3s ease;
+  cursor: pointer;
+}
+
+/* Lift up effect on hover for cards */
+.hover-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Info colored hover effect (Cyan) */
+.hover-card-info {
+  outline: 3px solid rgba(13, 202, 240, 0.75);
+  background-color: rgba(13, 202, 240, 0.712) !important;
+}
+
+.hover-card-info:hover {
+  border-color: rgba(13, 202, 240, 0.75);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 0 20px rgba(13, 202, 240, 0.4);
+}
+
+/* Success colored hover effect (Green) */
+.hover-card-success {
+  outline: 3px solid rgba(25, 135, 84, 0.75);
+  background-color: rgba(25, 135, 84, 0.712) !important;
+}
+
+.hover-card-success:hover {
+  border-color: rgba(25, 135, 84, 0.75);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 0 20px rgba(25, 135, 84, 0.4);
+}
+
+/* Primary colored hover effect (Blue) */
+.hover-card-primary {
+  outline: 3px solid rgba(13, 110, 253, 0.75);
+  background-color: rgba(13, 110, 253, 0.712) !important;
+}
+
+.hover-card-primary:hover {
+  border-color: rgba(13, 110, 253, 0.75);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 0 20px rgba(13, 110, 253, 0.4);
+}
+
+/* Secondary colored hover effect (Gray) */
+.hover-card-secondary {
+  outline: 3px solid rgba(108, 117, 125, 0.75);
+  background-color: rgba(108, 117, 125, 0.712) !important;
+}
+
+.hover-card-secondary:hover {
+  border-color: rgba(108, 117, 125, 0.75);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 0 20px rgba(108, 117, 125, 0.4);
+}
+
+/* Danger colored hover effect (Red) */
+.hover-card-danger {
+  outline: 3px solid rgba(220, 53, 69, 0.75);
+  background-color: rgba(220, 53, 69, 0.712) !important;
+}
+
+.hover-card-danger:hover {
+  border-color: rgba(220, 53, 69, 0.75);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 0 20px rgba(220, 53, 69, 0.4);
+}
+
+/* Card title typography */
+.card .card-title {
+  font-weight: 600;
+  background-color: rgba(0, 0, 0, 0.25);
+  color: white !important;
+  width: fit-content;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+/* Card text typography */
+.card .card-text {
+  font-size: 0.9rem;
+  background-color: rgba(0, 0, 0, 0.25);
+  color: white !important;
+  width: fit-content;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+/* General button styling - full width */
+.btn {
+  width: 100%;
+  font-weight: 500;
+}
+
+/* Styles for action buttons inside a navbar */
+.nav-action-btn {
+  width: auto;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.9rem;
+  border-radius: 0.5rem;
+  min-width: 120px;
+  text-align: center;
+  transition: transform 0.2s ease-in-out;
+}
+.nav-action-btn:hover {
+  transform: translateY(-2px);
+}

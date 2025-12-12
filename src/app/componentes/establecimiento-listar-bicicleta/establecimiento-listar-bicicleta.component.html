@@ -1,9 +1,23 @@
-<div class="container">
-  <button type="button" class="btn btn-secondary position-fixed top-0 end-0 m-3 shadow" (click)="goBack()">
-    <i class="bi bi-arrow-left me-1"></i>
-    Regresar
-  </button>
-  <h1>Gestión de Bicicletas - Establecimiento</h1>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid position-relative">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/inicio" style="cursor: pointer;">
+      <img src="assets/img/LogoChi.jpg" alt="Logo" height="40">
+      <span class="ms-2">CFT Estatal Arica y Parinacota</span>
+    </a>
+    <div class="position-absolute top-50 start-50 translate-middle d-none d-lg-block">
+      <span class="text-white fs-4 fw-bold text-uppercase">Bicicletas</span>
+    </div>
+    <button type="button" class="btn btn-warning nav-action-btn ms-auto" (click)="goBack()">
+      <i class="bi bi-arrow-left me-1"></i>
+      Regresar
+    </button>
+  </div>
+</nav>
+
+
+
+<div class="container-fluid px-4">
+  <h1 class="mb-4 title-background-primary">Gestión de Bicicletas - Establecimiento</h1>
 
   
   <section class="bicicletas-info">

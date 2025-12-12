@@ -1,5 +1,20 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid position-relative">
+    <a class="navbar-brand d-flex align-items-center" style="cursor: pointer;">
+      <img src="assets/img/LogoChi.jpg" alt="Logo" height="40">
+      <span class="ms-2">CFT Estatal Arica y Parinacota</span>
+    </a>
+    <div class="position-absolute top-50 start-50 translate-middle d-none d-lg-block">
+      <span class="text-white fs-4 fw-bold text-uppercase">Registro de Bicicletas</span>
+    </div>
+  </div>
+</nav>
+
+
+
+
+
 <div class="container p-4">
-	<h2 class="text-center mb-3">🚲 Registro de Bicicletas</h2>
 	<p class="text-center fw-bold"
 		 [ngClass]="{
 			 'text-success': mensaje.startsWith('✅'),
@@ -13,18 +28,18 @@
 	<div *ngIf="pasoActual === 'buscar'">
 		<form [formGroup]="rutForm" (ngSubmit)="buscarEstudiante()" class="card p-3 shadow-sm">
 			<label class="fw-bold mb-1">Ingrese RUT del estudiante:</label>
-			<input type="text" formControlName="rut" placeholder="12345678-9" class="form-control mb-3" (input)="sanitizeRutInputRutForm()" (blur)="formatRutIfNeededRutForm()" maxlength="10" />
+			<input type="text" formControlName="rut" placeholder="12345678-9" class="form-control mb-3" (input)="sanitizeRutInputRutForm()" (blur)="formatRutIfNeededRutForm()" maxlength="12" />
 			<button type="submit" class="btn btn-primary w-100">Buscar estudiante</button>
 		</form>
 	</div>
 
 	<!-- Paso 2: Registrar estudiante si no existe -->
 	<div *ngIf="pasoActual === 'registrarEstudiante'" class="mt-3">
-		<h4>🧍 Registrar nuevo estudiante</h4>
+		<h4 class="readable-background">Registrar nuevo estudiante</h4>
 		<form [formGroup]="estudianteForm" (ngSubmit)="registrarEstudiante()" class="card p-3 shadow-sm">
 			<input class="form-control mb-2" placeholder="Nombre" formControlName="nombre" />
 			<input class="form-control mb-2" placeholder="Apellido" formControlName="apellido" />
-			<input class="form-control mb-2" placeholder="RUT" formControlName="rut" (input)="sanitizeRutInputEstudiante()" (blur)="formatRutIfNeededEstudiante()" maxlength="10" />
+			<input class="form-control mb-2" placeholder="RUT" formControlName="rut" (input)="sanitizeRutInputEstudiante()" (blur)="formatRutIfNeededEstudiante()" maxlength="12" />
 			<input class="form-control mb-2" placeholder="Correo" formControlName="correo" />
 			<div class="d-flex gap-2">
 				<button type="submit" class="btn btn-success flex-fill">Registrar estudiante</button>
@@ -35,8 +50,8 @@
 
 	<!-- Paso 3: Opciones si el estudiante ya tiene bicicletas -->
 	<div *ngIf="pasoActual === 'opciones'" class="mt-3">
-		<h4>⚙️ Opciones de registro</h4>
-		<p>El estudiante ya tiene las siguientes bicicletas registradas:</p>
+		<h4 class="readable-background">Opciones de registro</h4>
+		<p class="readable-background">El estudiante ya tiene las siguientes bicicletas registradas:</p>
 
 		<ul class="list-group mb-3 shadow-sm">
 			<li *ngFor="let bici of bicicletasDelEstudiante"
@@ -52,17 +67,17 @@
 		</ul>
 
 		<div class="d-grid gap-2">
-			<button class="btn btn-outline-primary" (click)="registrarNuevaBicicleta()">
-				➕ Registrar nueva bicicleta
-			</button>
+			<button class="btn btn-success" (click)="registrarNuevaBicicleta()">
+        		➕ Registrar nueva bicicleta
+      		</button>
 			<button class="btn btn-secondary" (click)="reiniciarFlujo()">🔙 Volver a buscar otro estudiante</button>
 		</div>
 	</div>
 
 	<!-- Paso 4: Registrar bicicleta (nueva o cambiar estacionamiento) -->
 	<div *ngIf="pasoActual === 'registrarBicicleta'" class="mt-3">
-		<h4 *ngIf="!bicicletaSeleccionada">🚲 Registrar nueva bicicleta</h4>
-		<h4 *ngIf="bicicletaSeleccionada">🔄 Cambiar estacionamiento</h4>
+		<h4 class="readable-background" *ngIf="!bicicletaSeleccionada">Registrar nueva bicicleta</h4>
+		<h4 class="readable-background" *ngIf="bicicletaSeleccionada">Cambiar estacionamiento</h4>
 
 		<form [formGroup]="bicicletaForm" (ngSubmit)="registrarBicicleta()" class="card p-3 shadow-sm">
 			<input class="form-control mb-2" placeholder="Marca" formControlName="marca" [readonly]="!!bicicletaSeleccionada" />

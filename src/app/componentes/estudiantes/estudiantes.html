@@ -1,22 +1,34 @@
-<div class="container mt-4">
-	<button type="button" class="btn btn-secondary position-fixed top-0 end-0 m-3 shadow" (click)="goBack()">
-		<i class="bi bi-arrow-left me-1"></i>
-		Regresar
-	</button>
-	<div class="text-center mb-4">
-		<h2 class="title-background">Estudiantes</h2>
-		<p class="text-muted">Acciones relacionadas con estudiantes</p>
-	</div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid position-relative">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/inicio" style="cursor: pointer;">
+      <img src="assets/img/LogoChi.jpg" alt="Logo" height="40">
+      <span class="ms-2">CFT Estatal Arica y Parinacota</span>
+    </a>
+    <div class="position-absolute top-50 start-50 translate-middle d-none d-lg-block">
+      <span class="text-white fs-4 fw-bold text-uppercase">Estudiantes</span>
+    </div>
+    <button type="button" class="btn btn-warning nav-action-btn ms-auto" (click)="goBack()">
+      <i class="bi bi-arrow-left me-1"></i>
+      Regresar
+    </button>
+  </div>
+</nav>
 
-	<div class="text-center mb-3">
-		<a routerLink="/estudiante-crear" class="btn btn-success btn-lg shadow-sm">
-			<i class="bi bi-person-plus me-2"></i>
-			Crear Estudiante
-		</a>
-	</div>
 
 
-	<div class="row row-cols-1 row-cols-md-2 g-4">
+<div class="container d-flex flex-column justify-content-center" style="min-height: calc(100vh - 60px); padding-bottom: 5rem;">
+	<div class="row row-cols-1 row-cols-lg-3 g-4 justify-content-center">
+		<div class="col">
+			<div class="card h-100 border-0 text-center hover-card hover-card-success">
+				<div class="card-body d-flex flex-column justify-content-center align-items-center">
+					<i class="bi bi-person-plus fs-1 mb-3 text-success"></i>
+					<h5 class="card-title">Crear Estudiante</h5>
+					<p class="card-text text-muted">Registrar un nuevo estudiante en el sistema.</p>
+					<a routerLink="/estudiante-crear" class="btn btn-success mt-auto">Ir <i class="bi bi-arrow-right"></i></a>
+				</div>
+			</div>
+		</div>
+
 		<div class="col">
 			<div class="card h-100 border-0 text-center hover-card hover-card-primary">
 				<div class="card-body d-flex flex-column justify-content-center align-items-center">
@@ -29,12 +41,12 @@
 		</div>
 
 		<div class="col">
-			<div class="card h-100 border-0 text-center hover-card hover-card-secondary">
+			<div class="card h-100 border-0 text-center hover-card hover-card-info">
 				<div class="card-body d-flex flex-column justify-content-center align-items-center">
-					<i class="bi bi-people fs-1 mb-3 text-secondary"></i>
+					<i class="bi bi-people fs-1 mb-3 text-info"></i>
 					<h5 class="card-title">Listado de Estudiantes</h5>
 					<p class="card-text text-muted">Ver todos los estudiantes registrados.</p>
-					<a routerLink="/estudiante-listar" class="btn btn-secondary mt-auto">Ir <i class="bi bi-arrow-right"></i></a>
+					<a routerLink="/estudiante-listar" class="btn btn-info mt-auto text-white">Ir <i class="bi bi-arrow-right"></i></a>
 				</div>
 			</div>
 		</div>

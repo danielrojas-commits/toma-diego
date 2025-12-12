@@ -1,12 +1,22 @@
-<div class="container mt-4">
-	<button type="button" class="btn btn-secondary position-fixed top-0 end-0 m-3 shadow" (click)="goBack()">
-		<i class="bi bi-arrow-left me-1"></i>
-		Regresar
-	</button>
-	<div class="text-center mb-4">
-		<h2 class="title-background">Establecimientos</h2>
-		<p class="text-muted">Acciones relacionadas con establecimientos</p>
-	</div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid position-relative">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/inicio" style="cursor: pointer;">
+      <img src="assets/img/LogoChi.jpg" alt="Logo" height="40">
+      <span class="ms-2">CFT Estatal Arica y Parinacota</span>
+    </a>
+    <div class="position-absolute top-50 start-50 translate-middle d-none d-lg-block">
+      <span class="text-white fs-4 fw-bold text-uppercase">Establecimientos</span>
+    </div>
+    <button type="button" class="btn btn-warning nav-action-btn ms-auto" (click)="goBack()">
+      <i class="bi bi-arrow-left me-1"></i>
+      Regresar
+    </button>
+  </div>
+</nav>
+
+
+
+<div class="container d-flex flex-column justify-content-center" style="min-height: calc(100vh - 60px); padding-bottom: 5rem;">
 
 	<div class="row row-cols-1 row-cols-md-2 g-4">
 		<div class="col">

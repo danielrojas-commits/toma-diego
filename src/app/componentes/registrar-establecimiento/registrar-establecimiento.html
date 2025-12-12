@@ -1,11 +1,26 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid position-relative">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/inicio" style="cursor: pointer;">
+      <img src="assets/img/LogoChi.jpg" alt="Logo" height="40">
+      <span class="ms-2">CFT Estatal Arica y Parinacota</span>
+    </a>
+    <div class="position-absolute top-50 start-50 translate-middle d-none d-lg-block">
+      <span class="text-white fs-4 fw-bold text-uppercase">Establecimientos</span>
+    </div>
+    <button type="button" class="btn btn-warning nav-action-btn ms-auto" (click)="goBack()">
+      <i class="bi bi-arrow-left me-1"></i>
+      Regresar
+    </button>
+  </div>
+</nav>
+
+
+
+
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="card shadow-lg p-4 rounded-4">
-        <button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
-          <i class="bi bi-arrow-left me-1"></i>
-          Regresar
-        </button>
         <h2 class="text-center mb-4 text-primary fw-bold">Registro de Establecimiento</h2>
 
         <form [formGroup]="establecimientoForm" (ngSubmit)="crearEstablecimiento()">

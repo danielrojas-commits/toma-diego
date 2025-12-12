@@ -1,25 +1,38 @@
-<div class="container mt-4">
-  <button (click)="goBack()" class="btn btn-primary position-fixed top-0 end-0 m-3 shadow">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid position-relative">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/inicio" style="cursor: pointer;">
+      <img src="assets/img/LogoChi.jpg" alt="Logo" height="40">
+      <span class="ms-2">CFT Estatal Arica y Parinacota</span>
+    </a>
+    <div class="position-absolute top-50 start-50 translate-middle d-none d-lg-block">
+      <span class="text-white fs-4 fw-bold text-uppercase">Estudiantes</span>
+    </div>
+    <button type="button" class="btn btn-warning nav-action-btn ms-auto" (click)="goBack()">
       <i class="bi bi-arrow-left me-1"></i>
       Regresar
     </button>
-  <h2 class="text-center mb-4">Buscar Estudiante por RUT</h2>
+  </div>
+</nav>
 
-  <!-- Mensajes -->
+<div class="container mt-4">
+  <h2 class="text-center mb-4 title-background-primary">Buscar Estudiante por RUT</h2>
+
   <div *ngIf="mensaje" class="alert alert-{{ mensajeTipo }} alert-dismissible fade show" role="alert">
     {{ mensaje }}
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   </div>
 
-  <!-- Formulario de búsqueda -->
   <form (ngSubmit)="buscarEstudiante()" class="d-flex flex-column flex-md-row justify-content-center gap-2 mb-4">
     <input
       type="text"
       class="form-control w-50 mx-auto"
       placeholder="Ejemplo: 12345678-9"
-      [(ngModel)]="rut"
+      [ngModel]="rut"
       name="rut"
       required
+      maxlength="12"
+      (input)="sanitizeRutInput($event)"
+      (blur)="formatRutOnBlur()"
     />
     <button type="submit" class="btn btn-primary">
       <i class="bi bi-search"></i> Buscar
@@ -29,13 +42,11 @@
     </button>
   </form>
 
-  <!-- Cargando -->
   <div *ngIf="cargando" class="text-center">
     <div class="spinner-border text-primary" role="status"></div>
     <p>Buscando estudiante...</p>
   </div>
 
-  <!-- Resultado -->
   <div *ngIf="!cargando && estudiante" class="card mx-auto shadow-sm border-0" style="max-width: 30rem;">
     <div class="card-header bg-primary text-white text-center">
       <strong>Datos del Estudiante</strong>
@@ -48,7 +59,6 @@
     </div>
   </div>
 
-  <!-- Sin resultados -->
   <div *ngIf="!cargando && !estudiante && mensajeTipo === 'danger'" class="text-center text-muted">
     <i class="bi bi-person-x fs-3"></i>
     <p>No se encontró ningún estudiante con ese RUT.</p>

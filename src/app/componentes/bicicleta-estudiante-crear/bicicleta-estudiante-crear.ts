@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { Estudiante, EstudianteModel } from '../../servicios/estudiante';
 import { Bicicleta, BicicletaModel } from '../../servicios/bicicleta';
 import { Establecimiento, EstablecimientoModel } from '../../servicios/establecimiento';
+import { RutUtils } from '../../servicios/rut.utils';
 
 @Component({
   selector: 'app-bicicleta-estudiante-crear',
@@ -329,39 +330,13 @@ export class BicicletaEstudianteCrear {
         modelo: formValues.modelo ?? this.bicicletaSeleccionada?.modelo,
         color: formValues.color ?? this.bicicletaSeleccionada?.color,
         estacionamiento: formValues.estacionamiento,
-        // Enviamos el _id resuelto en `identificadorId` si está disponible; si no, intentamos usar el valor tal cual
-        identificador: formValues.identificadorId ?? formValues.identificador
-      };
-
-      // Helper que realiza la actualización usando el payload ya preparado
-      const doUpdate = (payloadToSend: any) => {
-        this.bicicletaService.actualizarBicicleta(id, payloadToSend).subscribe({
-          next: () => {
-            this.mensaje = '✅ Estacionamiento actualizado correctamente.';
-            this.reiniciarFlujo();
-          },
-          error: (err) => {
-            console.error('Error actualizar bicicleta', {
-              status: err?.status,
-              message: err?.message,
-              url: err?.url,
-              body: err?.error
-            });
-            const serverMsg = err?.error?.message ?? err?.error ?? null;
-            this.mensaje = serverMsg
-              ? `❌ Error al actualizar bicicleta (status: ${err?.status}): ${serverMsg}`
-              : `❌ Error al actualizar bicicleta (status: ${err?.status})`;
-          }
-        });
+        // Usamos el nombre del identificador que está en el campo 'identificador' del formulario
+        identificador: formValues.identificador
       };
 
       // Nuevo flujo: crear un registro nuevo con los datos actuales y eliminar el registro anterior.
-      const ident = payload.identificador;
-
       const createNewThenDelete = (payloadToSend: any, oldId: string) => {
         console.debug('[BicicletaEstudianteCrear] Creando nuevo registro con payload:', payloadToSend);
-        // eliminar campo auxiliar identificadorId si existe antes de enviar
-        if ((payloadToSend as any).identificadorId) delete (payloadToSend as any).identificadorId;
         this.bicicletaService.registrarBicicleta(payloadToSend).subscribe({
           next: (created: any) => {
             console.debug('[BicicletaEstudianteCrear] Creación exitosa, id creado:', created?._id ?? created?.id ?? created);
@@ -389,33 +364,8 @@ export class BicicletaEstudianteCrear {
         });
       };
 
-      // Si identificador existe y no es ObjectId, intentamos resolver a _id; si no se resuelve, cancelamos
-      if (ident && !/^[a-fA-F0-9]{24}$/.test(ident)) {
-        const cleaned = ('' + ident).replace(/^"+|"+$/g, '').trim();
-        this.establecimientoService.listarEstablecimientos().subscribe({
-          next: (list) => {
-            const targetNorm = this.normalizeString(cleaned);
-            let found = list.find(e => this.normalizeString(e.nombre) === targetNorm);
-            if (!found) {
-              found = list.find(e => this.normalizeString(e.nombre).includes(targetNorm) || targetNorm.includes(this.normalizeString(e.nombre)));
-            }
-            if (found && found._id) {
-              payload.identificador = found._id;
-              createNewThenDelete(payload, id);
-            } else {
-              console.warn('No se encontró establecimiento para identificador QR, cancelando operación:', ident);
-              this.mensaje = `❌ Identificador '${cleaned}' no corresponde a ningún establecimiento. Operación cancelada.`;
-            }
-          },
-          error: (err) => {
-            console.error('Error al listar establecimientos para resolver identificador (create+delete):', err);
-            this.mensaje = '❌ Error resolviendo identificador. Operación cancelada.';
-          }
-        });
-      } else {
-        // Identificador ya es un ObjectId o no existe: crear nuevo y eliminar anterior
-        createNewThenDelete(payload, id);
-      }
+      // Llamamos directamente al flujo de crear y eliminar, ya que el payload es simple.
+      createNewThenDelete(payload, id);
     } else {
       const bicicletaPayload: any = {
         rut: this.estudianteEncontrado.rut,
@@ -423,10 +373,9 @@ export class BicicletaEstudianteCrear {
         modelo: formValues.modelo,
         color: formValues.color,
         estacionamiento: formValues.estacionamiento,
-        identificador: formValues.identificadorId ?? formValues.identificador
+        // Usamos el nombre del identificador que está en el campo 'identificador' del formulario
+        identificador: formValues.identificador
       };
-      // eliminar identificadorId si accidentalmente quedó
-      if (bicicletaPayload.identificador === undefined) delete bicicletaPayload.identificador;
       this.bicicletaService.registrarBicicleta(bicicletaPayload).subscribe({
         next: () => {
           this.mensaje = '✅ Bicicleta registrada correctamente.';
@@ -470,13 +419,14 @@ export class BicicletaEstudianteCrear {
     const control = this.rutForm.get('rut');
     if (!control) return;
     const raw = (control.value || '').toString();
-    const onlyDigits = raw.replace(/\D/g, '');
-    const trimmed = onlyDigits.substr(0, 10);
-    if (trimmed !== raw) control.setValue(trimmed, { emitEvent: false });
-    if (trimmed.length === 9 || trimmed.length === 10) {
-      const dvProvided = trimmed.charAt(trimmed.length - 1).toUpperCase();
-      const main = trimmed.substr(0, trimmed.length - 1);
-      const formatted = this.formatRutString(main, dvProvided);
+    const cleaned = RutUtils.clean(raw);
+    
+    if (cleaned !== raw) {
+      control.setValue(cleaned, { emitEvent: false });
+    }
+
+    if (cleaned.length === 9 || cleaned.length === 10) {
+      const formatted = RutUtils.format(cleaned);
       control.setValue(formatted, { emitEvent: false });
     }
   }
@@ -485,21 +435,11 @@ export class BicicletaEstudianteCrear {
   formatRutIfNeededRutForm(): void {
     const control = this.rutForm.get('rut');
     if (!control) return;
-    const raw = (control.value || '').toString().trim();
-    if (!raw) return;
-    let digits = raw.replace(/\D/g, '');
-    if (!digits) return;
-    if (digits.length > 10) digits = digits.substr(0, 10);
-    if (digits.length === 9 || digits.length === 10) {
-      const dvProvided = digits.charAt(digits.length - 1).toUpperCase();
-      const main = digits.substr(0, digits.length - 1);
-      const formatted = this.formatRutString(main, dvProvided);
+    const raw = (control.value || '').toString();
+    const formatted = RutUtils.format(raw);
+    if (formatted) {
       control.setValue(formatted, { emitEvent: false });
-      return;
     }
-    const dv = this.computeRutDV(digits);
-    const formatted = this.formatRutString(digits, dv);
-    control.setValue(formatted, { emitEvent: false });
   }
 
   /** Sanitize input for the estudianteForm.rut */
@@ -507,13 +447,14 @@ export class BicicletaEstudianteCrear {
     const control = this.estudianteForm.get('rut');
     if (!control) return;
     const raw = (control.value || '').toString();
-    const onlyDigits = raw.replace(/\D/g, '');
-    const trimmed = onlyDigits.substr(0, 10);
-    if (trimmed !== raw) control.setValue(trimmed, { emitEvent: false });
-    if (trimmed.length === 9 || trimmed.length === 10) {
-      const dvProvided = trimmed.charAt(trimmed.length - 1).toUpperCase();
-      const main = trimmed.substr(0, trimmed.length - 1);
-      const formatted = this.formatRutString(main, dvProvided);
+    const cleaned = RutUtils.clean(raw);
+    
+    if (cleaned !== raw) {
+      control.setValue(cleaned, { emitEvent: false });
+    }
+
+    if (cleaned.length === 9 || cleaned.length === 10) {
+      const formatted = RutUtils.format(cleaned);
       control.setValue(formatted, { emitEvent: false });
     }
   }
@@ -522,44 +463,10 @@ export class BicicletaEstudianteCrear {
   formatRutIfNeededEstudiante(): void {
     const control = this.estudianteForm.get('rut');
     if (!control) return;
-    const raw = (control.value || '').toString().trim();
-    if (!raw) return;
-    let digits = raw.replace(/\D/g, '');
-    if (!digits) return;
-    if (digits.length > 10) digits = digits.substr(0, 10);
-    if (digits.length === 9 || digits.length === 10) {
-      const dvProvided = digits.charAt(digits.length - 1).toUpperCase();
-      const main = digits.substr(0, digits.length - 1);
-      const formatted = this.formatRutString(main, dvProvided);
+    const raw = (control.value || '').toString();
+    const formatted = RutUtils.format(raw);
+    if (formatted) {
       control.setValue(formatted, { emitEvent: false });
-      return;
     }
-    const dv = this.computeRutDV(digits);
-    const formatted = this.formatRutString(digits, dv);
-    control.setValue(formatted, { emitEvent: false });
   }
-
-  private computeRutDV(digits: string): string {
-    let sum = 0;
-    let multiplier = 2;
-    for (let i = digits.length - 1; i >= 0; i--) {
-      sum += parseInt(digits.charAt(i), 10) * multiplier;
-      multiplier = multiplier === 7 ? 2 : multiplier + 1;
-    }
-    const mod = 11 - (sum % 11);
-    if (mod === 11) return '0';
-    if (mod === 10) return 'K';
-    return String(mod);
-  }
-
-  private formatRutString(digits: string, dv: string): string {
-    let reversed = digits.split('').reverse().join('');
-    const parts: string[] = [];
-    for (let i = 0; i < reversed.length; i += 3) {
-      parts.push(reversed.substr(i, 3));
-    }
-    const joined = parts.map(p => p.split('').reverse().join('')).reverse().join('.');
-    return `${joined}-${dv}`;
-  }
-
 }
