@@ -17,6 +17,7 @@ import { ListarAcceso } from './componentes/listar-acceso/listar-acceso';
 import { RegistrarEstablecimiento } from './componentes/registrar-establecimiento/registrar-establecimiento';
 import { ListarEstablecimiento } from './componentes/listar-establecimiento/listar-establecimiento';
 import { Establecimientos } from './componentes/establecimientos/establecimientos';
+import { QrEstablecimientoComponent } from './componentes/qr-establecimiento/qr-establecimiento.component';
 import { BicicletaExito } from './componentes/bicicleta-exito/bicicleta-exito';
 import { EstablecimientoListarBicicletaComponent } from './componentes/establecimiento-listar-bicicleta/establecimiento-listar-bicicleta.component';
 
@@ -98,6 +99,10 @@ export const routes: Routes = [
     {
         path: "establecimientos",
         component: Establecimientos
+    },
+    {
+        path: "qr-establecimiento",
+        component: QrEstablecimientoComponent
     },
     {
         path: 'establecimiento-listar-bicicleta',

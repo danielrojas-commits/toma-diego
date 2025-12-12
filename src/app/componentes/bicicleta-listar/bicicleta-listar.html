@@ -52,7 +52,6 @@
   <table *ngIf="!cargando && bicicletas.length > 0" class="table table-hover table-bordered align-middle" style="background-color: rgba(255, 255, 255, 0.8);">
     <thead class="table-dark">
       <tr>
-        <th>Identificador</th>
         <th>Marca</th>
         <th>Modelo</th>
         <th>Color</th>
@@ -63,7 +62,6 @@
     </thead>
     <tbody>
       <tr *ngFor="let bici of bicicletasFiltradas">
-        <td>{{ bici.identificador || bici.establecimiento || '-' }}</td>
         <td>{{ bici.marca }}</td>
         <td>{{ bici.modelo || '-' }}</td>
         <td>{{ bici.color }}</td>

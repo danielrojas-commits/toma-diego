@@ -87,6 +87,45 @@ export class Establecimiento {
     return tryIndex(0);
   }
 
+  obtenerEstablecimientoPorIdentificador(identificador: string): Observable<EstablecimientoModel> {
+    // Intentamos varias rutas posibles que pueden exponer búsqueda por identificador
+    const candidates = [
+      `${this.apiUrl}/obtener-por-identificador/${identificador}`,
+      `${this.apiUrl}/identificador/${identificador}`,
+      `${this.apiUrl}/obtener?identificador=${identificador}`,
+      `${this.apiUrl}?identificador=${identificador}`
+    ];
+
+    const tryIndex = (i: number): Observable<EstablecimientoModel> => {
+      if (i >= candidates.length) {
+        // fallback: intentar buscar en la lista local por _id o por nombre/identificador
+        const foundByIdent = this.FALLBACK_ESTABLECIMIENTOS.find(e => {
+          if (!e) return false;
+          // comparar contra identificador y nombre en minúsculas
+          const nombre = (e['identificador'] ?? e.nombre ?? '').toString().toLowerCase();
+          return nombre === identificador.toLowerCase();
+        });
+        if (foundByIdent) return of(foundByIdent);
+        return throwError(() => new Error('No se encontró una ruta válida para obtener establecimiento por identificador'));
+      }
+      return this.http.get<EstablecimientoModel>(candidates[i]).pipe(
+        catchError((err: any) => {
+          if (err?.status === 404) {
+            return tryIndex(i + 1);
+          }
+          const foundByIdent = this.FALLBACK_ESTABLECIMIENTOS.find(e => {
+            const nombre = (e['identificador'] ?? e.nombre ?? '').toString().toLowerCase();
+            return nombre === identificador.toLowerCase();
+          });
+          if (foundByIdent) return of(foundByIdent);
+          return throwError(() => err);
+        })
+      );
+    };
+
+    return tryIndex(0);
+  }
+
   
   crearEstablecimiento(data: Partial<EstablecimientoModel>): Observable<any> {
     return this.http.post(`${this.apiUrl}/crear`, data);

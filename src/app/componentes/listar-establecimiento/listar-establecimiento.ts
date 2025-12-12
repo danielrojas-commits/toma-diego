@@ -66,25 +66,25 @@ export class ListarEstablecimiento implements OnInit {
   }
 
   buscarPorId() {
-    const id = this.searchForm.value.id?.trim();
-    if (!id) {
-      this.mensaje = '⚠️ Ingresa un id válido.';
+    const identificador = this.searchForm.value.id?.trim();
+    if (!identificador) {
+      this.mensaje = '⚠️ Ingresa un identificador válido.';
       return;
     }
 
     this.loading = true;
     this.mensaje = '';
     this.foundEstablishment = null;
-    this.establecimientoService.obtenerEstablecimientoPorId(id).subscribe({
+    this.establecimientoService.obtenerEstablecimientoPorIdentificador(identificador).subscribe({
       next: (res) => {
         this.foundEstablishment = res ?? null;
         this.loading = false;
         if (!this.foundEstablishment) {
-          this.mensaje = '⚠️ No se encontró un establecimiento con ese id.';
+          this.mensaje = '⚠️ No se encontró un establecimiento con ese identificador.';
         }
       },
       error: (err) => {
-        console.error('Error buscar id establecimiento', err);
+        console.error('Error buscar establecimiento por identificador', err);
         this.rawError = err;
         const status = err?.status ?? 'desconocido';
         const serverMsg = err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null);
@@ -105,7 +105,7 @@ export class ListarEstablecimiento implements OnInit {
 
   // Inicia la edición de un establecimiento (puede venir de la lista o del resultado encontrado)
   startEdit(est: any) {
-    const id = est?._id ?? est?.identificador ?? null;
+    const id = est?._id ?? est?.['identificador'] ?? null;
     if (!id) {
       this.mensaje = '⚠️ No se pudo determinar el id del establecimiento para editar.';
       return;

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -6,7 +6,8 @@ import { RouterModule } from '@angular/router';
 import { Estudiante, EstudianteModel } from '../../servicios/estudiante';
 import { Bicicleta, BicicletaModel } from '../../servicios/bicicleta';
 import { Establecimiento, EstablecimientoModel } from '../../servicios/establecimiento';
-import { RutUtils } from '../../servicios/rut.utils';
+import { BicicletaFlowService } from '../../servicios/bicicleta-flow.service';
+import { AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'app-bicicleta-estudiante-crear',
@@ -15,6 +16,9 @@ import { RutUtils } from '../../servicios/rut.utils';
   styleUrl: './bicicleta-estudiante-crear.css'
 })
 export class BicicletaEstudianteCrear {
+
+  // If user arrived via a QR, we want to focus the RUT field and later redirect back
+  private qrArrived = false;
 
   // Inyección de servicios
   private estudianteService = inject(Estudiante);
@@ -25,7 +29,7 @@ export class BicicletaEstudianteCrear {
   mensaje = '';
   estudianteEncontrado: EstudianteModel | null = null;
   bicicletasDelEstudiante: BicicletaModel[] = [];
-  pasoActual: 'buscar' | 'registrarEstudiante' | 'registrarBicicleta' | 'opciones' = 'buscar';
+  pasoActual: 'buscar' | 'registrarEstudiante' | 'registrarBicicleta' | 'opciones' | 'exitoEstudiante' = 'buscar';
   bicicletaSeleccionada: BicicletaModel | null = null;
 
   // Formulario para buscar estudiante
@@ -83,20 +87,39 @@ export class BicicletaEstudianteCrear {
   };
 
   private route = inject(ActivatedRoute);
+  private bicicletaFlow = inject(BicicletaFlowService);
 
   // Leemos los query params (si el usuario llegó por un QR con estacionamiento/identificador)
   constructor() {
     this.route.queryParamMap.subscribe((params) => {
       this.qrEstacionamiento = params.get('estacionamiento');
       this.qrIdentificador = params.get('identificador');
+      const rutFromQr = params.get('rut');
+      if (rutFromQr) {
+        this.rutForm.patchValue({ rut: rutFromQr });
+        // Try auto-search if rut present
+        setTimeout(() => this.buscarEstudiante(), 10);
+      }
+      // mark that we arrived via QR if any QR param exists
+      if (this.qrEstacionamiento || this.qrIdentificador) this.qrArrived = true;
       // Si hay identificador/estacionamiento desde el QR, resolvemos e intentamos aplicar
       if (this.qrIdentificador) {
-        this.resolveQrIdentificadorAndApply();
+        this.applyQrToBicicletaForm();
       } else {
         // Si sólo hubo estacionamiento, aplicar lock
-        this.applyQrLock();
+        this.applyQrToBicicletaForm();
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.qrArrived) {
+      // Focus the rut input if present
+      const el = document.getElementById('rut-input') as HTMLInputElement | null;
+      if (el) {
+        setTimeout(() => el.focus(), 50);
+      }
+    }
   }
 
   // ======================
@@ -134,9 +157,15 @@ export class BicicletaEstudianteCrear {
     this.estudianteService.crearEstudiante(nuevoEstudiante).subscribe({
       next: (est) => {
         this.estudianteEncontrado = est;
+        // If we arrived via a QR, show success screen with student data
+        if (this.qrArrived && (this.qrIdentificador || this.qrEstacionamiento)) {
+          this.mensaje = '✅ Estudiante registrado exitosamente.';
+          this.pasoActual = 'exitoEstudiante';
+          return;
+        }
+        // Otherwise, continue to bike registration
         this.mensaje = '✅ Estudiante registrado correctamente.';
         this.pasoActual = 'registrarBicicleta';
-        // Aplicar valores desde QR al mostrar el formulario de bicicleta
         this.applyQrToBicicletaForm();
       },
       error: () => (this.mensaje = '❌ Error al registrar estudiante.')
@@ -205,90 +234,36 @@ export class BicicletaEstudianteCrear {
   }
 
   private applyQrToBicicletaForm() {
-    // Para garantizar que identificador sea un ObjectId válido para el backend,
-    // primero resolvemos qrIdentificador (si existe) y luego patch-eamos el formulario.
     if (this.qrIdentificador) {
-      this.resolveQrIdentificadorAndApply();
+      this.bicicletaFlow.resolveIdentificador(this.qrIdentificador, this.establecimientoService).subscribe({
+        next: ({ name, id }) => {
+          this.identificadorNombreResuelto = name ?? null;
+          this.bicicletaForm.patchValue({ identificador: name ?? id, identificadorId: id ?? '' });
+          if (this.qrEstacionamiento) this.bicicletaForm.patchValue({ estacionamiento: this.qrEstacionamiento });
+          this.bicicletaFlow.applyQrLockToControl(this.bicicletaForm.get('estacionamiento') as AbstractControl, this.qrEstacionamiento);
+        },
+        error: () => {
+          this.bicicletaForm.patchValue({ identificador: this.qrIdentificador, identificadorId: '' });
+          if (this.qrEstacionamiento) this.bicicletaForm.patchValue({ estacionamiento: this.qrEstacionamiento });
+          this.bicicletaFlow.applyQrLockToControl(this.bicicletaForm.get('estacionamiento') as AbstractControl, this.qrEstacionamiento);
+        }
+      });
     } else {
       const patch: any = {};
       if (this.qrEstacionamiento) patch.estacionamiento = this.qrEstacionamiento;
       if (Object.keys(patch).length > 0) {
         this.bicicletaForm.patchValue(patch);
-        this.applyQrLock();
+        this.bicicletaFlow.applyQrLockToControl(this.bicicletaForm.get('estacionamiento') as AbstractControl, this.qrEstacionamiento);
       }
     }
   }
 
   private resolveQrIdentificadorAndApply() {
-    const id = this.qrIdentificador ?? '';
-    // Si ya es un ObjectId (24 hex chars), usamos tal cual
-    if (/^[a-fA-F0-9]{24}$/.test(id)) {
-      // Intentamos obtener el nombre del establecimiento por id
-      this.establecimientoService.obtenerEstablecimientoPorId(id).subscribe({
-        next: (est) => {
-          const name = est?.nombre ?? id;
-          this.identificadorNombreResuelto = est?.nombre ?? null;
-          this.bicicletaForm.patchValue({ identificador: name, identificadorId: id });
-        },
-        error: () => {
-          // No se pudo obtener el establecimiento: dejamos el id visible y guardado
-          this.bicicletaForm.patchValue({ identificador: id, identificadorId: id });
-        }
-      });
-      return;
-    }
-
-    // Si viene como nombre (ej. 'campus-Lincoyan'), intentamos buscar el establecimiento
-    this.establecimientoService.listarEstablecimientos().subscribe({
-      next: (list) => {
-        const targetNorm = this.normalizeString(id);
-        let found = list.find(e => this.normalizeString(e.nombre) === targetNorm);
-        if (!found) {
-          // intentar coincidencias más flexibles
-          found = list.find(e => this.normalizeString(e.nombre).includes(targetNorm) || targetNorm.includes(this.normalizeString(e.nombre)));
-        }
-        // Si no encontramos en la lista remota, intentar el mapa local conocido
-        if (!found) {
-          const localId = this.LOCAL_IDENTIFICADOR_MAP[targetNorm] || this.LOCAL_IDENTIFICADOR_MAP[id?.toLowerCase?.() ?? ''];
-          if (localId) {
-            found = { _id: localId, nombre: id } as EstablecimientoModel;
-          }
-        }
-        if (found && found._id) {
-          // Guardamos el nombre para mostrar y usamos el _id en el formulario
-          this.identificadorNombreResuelto = found.nombre ?? null;
-          this.bicicletaForm.patchValue({ identificador: found.nombre ?? found._id, identificadorId: found._id });
-        } else {
-          // No encontramos la coincidencia: dejamos el valor original (pero será inválido para el backend)
-          console.warn('QR identificador no coincide con ningún establecimiento (nombre -> id)', id);
-          this.bicicletaForm.patchValue({ identificador: id, identificadorId: '' });
-        }
-        // Aplicar estacionamiento y lock si corresponde
-        if (this.qrEstacionamiento) {
-          this.bicicletaForm.patchValue({ estacionamiento: this.qrEstacionamiento });
-        }
-        this.applyQrLock();
-      },
-      error: (err) => {
-        console.error('Error al listar establecimientos para resolver identificador QR', err);
-        // Fallback: aplicar lo que tengamos
-        this.bicicletaForm.patchValue({ identificador: id, identificadorId: '' });
-        if (this.qrEstacionamiento) this.bicicletaForm.patchValue({ estacionamiento: this.qrEstacionamiento });
-        this.applyQrLock();
-      }
-    });
+    // replaced by BicicletaFlowService.resolveIdentificador and handled in applyQrToBicicletaForm
   }
 
   private applyQrLock() {
-    const ctrl = this.bicicletaForm.get('estacionamiento');
-    if (this.qrEstacionamiento) {
-      // Patch value (in case not yet applied) and disable the control so user cannot modify
-      ctrl?.patchValue(this.qrEstacionamiento);
-      ctrl?.disable({ emitEvent: false, onlySelf: true });
-    } else {
-      // No QR estacionamiento: ensure enabled
-      ctrl?.enable({ emitEvent: false, onlySelf: true });
-    }
+    // replaced by BicicletaFlowService.applyQrLockToControl
   }
 
   cambiarEstacionamiento(bici: BicicletaModel) {
@@ -392,6 +367,7 @@ export class BicicletaEstudianteCrear {
   reiniciarFlujo() {
     this.bicicletaForm.reset();
     this.rutForm.reset();
+    this.estudianteForm.reset();
     this.estudianteEncontrado = null;
     this.bicicletasDelEstudiante = [];
     this.pasoActual = 'buscar';
@@ -419,14 +395,14 @@ export class BicicletaEstudianteCrear {
     const control = this.rutForm.get('rut');
     if (!control) return;
     const raw = (control.value || '').toString();
-    const cleaned = RutUtils.clean(raw);
-    
+    const cleaned = this.bicicletaFlow.cleanRut(raw);
+
     if (cleaned !== raw) {
       control.setValue(cleaned, { emitEvent: false });
     }
 
     if (cleaned.length === 9 || cleaned.length === 10) {
-      const formatted = RutUtils.format(cleaned);
+      const formatted = this.bicicletaFlow.formatRut(cleaned);
       control.setValue(formatted, { emitEvent: false });
     }
   }
@@ -436,7 +412,7 @@ export class BicicletaEstudianteCrear {
     const control = this.rutForm.get('rut');
     if (!control) return;
     const raw = (control.value || '').toString();
-    const formatted = RutUtils.format(raw);
+    const formatted = this.bicicletaFlow.formatRut(raw);
     if (formatted) {
       control.setValue(formatted, { emitEvent: false });
     }
@@ -447,14 +423,14 @@ export class BicicletaEstudianteCrear {
     const control = this.estudianteForm.get('rut');
     if (!control) return;
     const raw = (control.value || '').toString();
-    const cleaned = RutUtils.clean(raw);
-    
+    const cleaned = this.bicicletaFlow.cleanRut(raw);
+
     if (cleaned !== raw) {
       control.setValue(cleaned, { emitEvent: false });
     }
 
     if (cleaned.length === 9 || cleaned.length === 10) {
-      const formatted = RutUtils.format(cleaned);
+      const formatted = this.bicicletaFlow.formatRut(cleaned);
       control.setValue(formatted, { emitEvent: false });
     }
   }
@@ -464,7 +440,7 @@ export class BicicletaEstudianteCrear {
     const control = this.estudianteForm.get('rut');
     if (!control) return;
     const raw = (control.value || '').toString();
-    const formatted = RutUtils.format(raw);
+    const formatted = this.bicicletaFlow.formatRut(raw);
     if (formatted) {
       control.setValue(formatted, { emitEvent: false });
     }
